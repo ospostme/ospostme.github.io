@@ -2,9 +2,6 @@
 title: Your awesome title
 timezone: UTC
 collections:
-  ds-and-algorithm:
-    title: DS & Algorithm
-    output: true
   posts:
     title: Posts
     output: true
