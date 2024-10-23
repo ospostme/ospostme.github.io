@@ -41,7 +41,7 @@ siteleaf documents *[here](https://learn.siteleaf.com/getting-started/#gsc.tab=0
 
 Official docs is always the best source.   Operation sequence suggestion:
 
-1. *[J](https://jekyllrb.com/docs/step-by-step/01-setup/)*[ekyll local trial first to make it fly](https://jekyllrb.com/docs/step-by-step/01-setup/).
+1. *[Jekyll local trial first to make it fly.](https://jekyllrb.com/docs/step-by-step/01-setup/)*
 
 2. *[connect to github pages,  ensure push will bring github pages update  eventually.](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll)*
 
