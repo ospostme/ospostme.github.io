@@ -33,16 +33,16 @@ I can't fully accurate remember what happened at that time,  but if there's any 
 
 `ALL_PROXY=socks5h://xxx.xxx.xxx.xxx:xxxx brew install --debug --verbose chruby ruby-install`
 
-github related documents  [here](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll) 
+github related documents  *[here](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll)*
 
-siteleaf documents [here](https://learn.siteleaf.com/getting-started/#gsc.tab=0)
+siteleaf documents *[here](https://learn.siteleaf.com/getting-started/#gsc.tab=0)*
 
 # DEPLOYMENT
 
 Official docs is always the best source.   Operation sequence suggestion:
 
-1.  [Jekyll local trial first to make it fly](https://jekyllrb.com/docs/step-by-step/01-setup/).
+1. *[J](https://jekyllrb.com/docs/step-by-step/01-setup/)*[ekyll local trial first to make it fly](https://jekyllrb.com/docs/step-by-step/01-setup/).
 
-2.  [connect to github pages,  ensure push will bring github pages update  eventually.](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll)
+2. *[connect to github pages,  ensure push will bring github pages update  eventually.](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll)*
 
-3.  [connect github with siteleaf, then you can update your pages with visualization.](https://www.siteleaf.com/blog/connecting-github/)
+3. *[connect github with siteleaf, then you can update your pages with visualization.](https://www.siteleaf.com/blog/connecting-github/)*
