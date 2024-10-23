@@ -11,7 +11,7 @@ WHEN reinstalling the laptop and working environment,  feel that I have been in 
 
 1. Jekyll \+  siteleaf  \+ github  for free and easy setup,  beside that the notes/learning records/blogs should be much more safe than hosting on my own devices.
 
-2. VIM/typero with jekyll  for local desktop.    In case internet access was blocking or there's no any internet access at all.
+2. VIM/VS Code with jekyll  for local desktop.    In case internet access was blocking or there's no any internet access at all.
 
 # INSTALLATION
 
