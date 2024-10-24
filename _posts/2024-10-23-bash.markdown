@@ -3,3 +3,104 @@ title: BASH
 date: 2024-10-23 14:43:00 Z
 ---
 
+# Important locale category variables
+
+A locale category is a group of data that's specific to a language  locality (Country/Region) or cultural convention. Locale categories are used by localization routines to specify which parts of a program's locale information to use.
+
+* LANG    Locale categories not specifically selected with a variable starting with `LC_.`
+
+* LC_CTYPE   Process txt byte by byte.  Affect the behavior of character classes within filename expansion and pattern matching.
+
+* [LC_COLLATE](https://unix.stackexchange.com/questions/75341/specify-the-sort-order-with-lc-collate-so-lowercase-is-before-uppercase)  How strings are compared and sorted.  Affect the sorting order.  Specially  determines how b-tree indexes on string columns are ordered. (PostgreSQL).
+
+* LC_ALL   Overrides the value of `LANG`and any other `LC_`variable specifying a locale category.
+
+* LC_MESSAGES
+
+* LC_TIME
+
+* LC_NUMERIC
+
+# Loading Sequence
+
+/etc/profile -> /etc/bashrc ->  \~/.bash_profile -> \~/.bashrc
+
+profile is executed for login shell,   while bashrc is executed for interactive non-login  shell.  But, if you’ve already logged into your machine and open a new terminal window (xterm) then `bashrc`i s executed before the window command prompt.`.bashrc`is also run when you start a new bash instance by typing `/bin/bash`in a terminal.
+
+On MacOS, Terminal by default runs a login shell every time, so this is a little different to most other systems.
+
+# Customization
+
+### **PS1 **
+
+The primary prompt string,  will be expanded accordingly before displayed.
+
+Example:
+
+`PS1='\e[1;32m$(date) \u@\h:$PWD\n\e[0m\e[1;33m\u >\e[0m '`
+
+\\e\[1;32m,  \\e\]1;33m  color green, yellow
+
+\\e\[0m  color end, reset color to default after this
+
+`Thu Oct 24 20:19:45 CST 2024 ospost@MacPro:/Users/ospost`
+
+`ospost >`
+
+Command paste on the terminal  with upper setting will cause some kind of mismatch,  although it's fine when executing, but position mismatch brings a lot disturb.   Reference #4  explains very well with the underlying mechanism.  In my tests,   \\\[, \\\]  are workable just like \\001, \\002.
+
+*`PS1='\[\e[1;32m\]$(date) \u@\h:$PWD\[\e[0m\]\n\[\e[1;33m\]\u >\[\e[0m\] '`*
+
+*`PS1='\001\e[1;32m\002$(date) \u@\h:$PWD\001\e[0m\002\n\001\e[1;33m\002\u >\001\e[0m\002 '`*
+
+It's been good so far despites not human readable.
+
+### **PROMPT_COMMAND**  
+
+If this variable is set, and is an array, the value of each set element is interpreted as a command to execute before printing the primary prompt (`$PS1`). If this is set but not an array variable, its value is used as a command to execute instead.
+
+Another version with PROMPT_COMMAND,  move detailed info into PROMPT_COMMAND,  then 'tab' will not bring it out every time.
+
+*`PS1='\001\e[1;33m\002\u >\001\e[0m\002 ' PROMPT_COMMAND+=( #'your extra command here' 'printf "\\001\\e[1;32m\\002%s %s@%s:%s\\001\\e[0m\\002\n" "$(date)" "$(whoami)" "$(hostname)" "$PWD" ')`*
+
+### Add Git Branch in prompt
+
+*`function parse_git_branch() { 
+  BRANCH=git branch 2> /dev/null | sed -e '/^[^]/d' -e 's/* (.*)/\1/'`
+  if [ "${BRANCH}" == "" ]
+  then
+     echo ""
+  else
+     echo "(${BRANCH})"
+  fi
+}`*
+
+*`#nps='['
+#npe=']'
+nps='\001'
+npe='\002'
+txtred="${nps}\e[0;31m${npe}" # Red
+txtgrn="${nps}\e[0;32m${npe}" # Green
+bldgrn="${nps}\e[1;32m${npe}" # Bold Green
+bldyel="${nps}\e[1;33m${npe}" # Bold Yellow
+bldpur="${nps}\e[1;35m${npe}" # Bold Purple
+txtrst="${nps}\e[0m${npe}" # Text Reset
+PS1="${bldyel}\u`parse_git_branch` $${txtrst} "
+PROMPT_COMMAND+=(
+  #'your extra command here'
+  '
+  printf "\001\e[1;32m\002%s %s@%s:%s\001\e[0m\002\n" "$(date)" "$(whoami)".     "$(hostname)" "$PWD"
+  '
+)`*
+
+# Reference
+
+1. *[Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html)*
+
+2. *[Explain the effects of export LANG, LC_CTYPE, and LC_ALL](https://stackoverflow.com/questions/30479607/explain-the-effects-of-export-lang-lc-ctype-and-lc-all)*
+
+3. *[What is the difference between .bash_profile and .bashrc](https://apple.stackexchange.com/questions/51036/what-is-the-difference-between-bash-profile-and-bashrc)*
+
+4. *[Bash: PS1 vs Prompt Command to set prompt and title](https://superuser.com/questions/1619614/bash-ps1-vs-prompt-command-to-set-prompt-and-title)*
+
+5. *[Is $PROMPT_COMMAND a colon-separated list?](https://unix.stackexchange.com/questions/460651/is-prompt-command-a-colon-separated-list)*
