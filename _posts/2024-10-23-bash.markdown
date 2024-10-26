@@ -25,13 +25,13 @@ A locale category is a group of data that's specific to a language  locality (Co
 
 /etc/profile -> /etc/bashrc ->  \~/.bash_profile -> \~/.bashrc
 
-profile is executed for login shell,   while bashrc is executed for interactive non-login  shell.  But, if you’ve already logged into your machine and open a new terminal window (xterm) then `bashrc`i s executed before the window command prompt.`.bashrc`is also run when you start a new bash instance by typing `/bin/bash`in a terminal.
+profile is executed for login shell,   while bashrc is executed for interactive non-login  shell.  But, if you’ve already logged into your machine and open a new terminal window (xterm) then `bashrc`is executed before the window command prompt.`.bashrc`is also run when you start a new bash instance by typing `/bin/bash`in a terminal.
 
 On MacOS, Terminal by default runs a login shell every time, so this is a little different to most other systems.
 
 # Customization
 
-### **PS1 **
+### \*\*PS1 \*\*
 
 The primary prompt string,  will be expanded accordingly before displayed.
 
@@ -55,7 +55,7 @@ Command paste on the terminal  with upper setting will cause some kind of mismat
 
 It's been good so far despites not human readable.
 
-### **PROMPT_COMMAND**  
+### **PROMPT_COMMAND**
 
 If this variable is set, and is an array, the value of each set element is interpreted as a command to execute before printing the primary prompt (`$PS1`). If this is set but not an array variable, its value is used as a command to execute instead.
 
@@ -65,42 +65,61 @@ Another version with PROMPT_COMMAND,  move detailed info into PROMPT_COMMAND,  t
 
 ### Add Git Branch in prompt
 
-*`function parse_git_branch() { 
-  BRANCH=git branch 2> /dev/null | sed -e '/^[^]/d' -e 's/* (.*)/\1/'`
-  if [ "${BRANCH}" == "" ]
-  then
-     echo ""
-  else
-     echo "(${BRANCH})"
-  fi
-}`*
+*`function parse_git_branch() { BRANCH=git branch 2> /dev/null | sed -e '/^[^]/d' -e 's/* (.*)/\1/'`
+if \[ "${BRANCH}" == "" \]
+then
+echo ""
+else
+echo "(${BRANCH})"
+fi
+}\`*
 
-*`#nps='['
-#npe=']'
-nps='\001'
-npe='\002'
-txtred="${nps}\e[0;31m${npe}" # Red
-txtgrn="${nps}\e[0;32m${npe}" # Green
-bldgrn="${nps}\e[1;32m${npe}" # Bold Green
-bldyel="${nps}\e[1;33m${npe}" # Bold Yellow
-bldpur="${nps}\e[1;35m${npe}" # Bold Purple
-txtrst="${nps}\e[0m${npe}" # Text Reset
-PS1="${bldyel}\u`parse_git_branch` $${txtrst} "
-PROMPT_COMMAND+=(
-  #'your extra command here'
-  '
-  printf "\001\e[1;32m\002%s %s@%s:%s\001\e[0m\002\n" "$(date)" "$(whoami)".     "$(hostname)" "$PWD"
-  '
-)`*
+*`#nps='[' #npe=']' nps='\001' npe='\002' txtred="${nps}\e[0;31m${npe}" # Red txtgrn="${nps}\e[0;32m${npe}" # Green bldgrn="${nps}\e[1;32m${npe}" # Bold Green bldyel="${nps}\e[1;33m${npe}" # Bold Yellow bldpur="${nps}\e[1;35m${npe}" # Bold Purple txtrst="${nps}\e[0m${npe}" # Text Reset PS1="${bldyel}\u`parse_git_branch`$${txtrst} " PROMPT_COMMAND+=( #'your extra command here' ' printf "\001\e[1;32m\002%s %s@%s:%s\001\e[0m\002\n" "$(date)" "$(whoami)". "$(hostname)" "$PWD" ' )`*
+
+### Bash History Setting
+
+By default, bash writes its history at the end of each session, overwriting the existing file with an updated version. This means that if you are logged in with multiple bash sessions, only the last one to exit will have its history saved.
+
+You can work around this by setting the `histappend`setting, which will append instead of overwriting the history. This may be set already, but if it is not, you can enable this by adding this line:
+
+*`shopt -s histappend`*
+
+If you want to have bash immediately add commands to your history instead of waiting for the end of each session (to enable commands in one terminal to be instantly be available in another), you can also set or append the `history -a` command to the [PROMPT_COMMAND](https://www.gnu.org/software/bash/manual/html_node/Bash-History-Facilities.html) parameter, which contains commands that are executed before each new command prompt.
+
+To configure this correctly, you’ll need to customize bash’s `PROMPT_COMMAND` to change the way commands are recorded in the history file and in the current shell session’s memory:
+
+* First, you need to append to the history file immediately with `history -a`.
+
+* Next, you must clear the current history in your shell session with `history -c`.
+
+* Finally, to load the updated history back into your shell session, use the `history -r` command.
+
+*`export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"`*\
 
 # Reference
 
-1. *[Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html)*
+ 1. *[Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html)*
 
-2. *[Explain the effects of export LANG, LC_CTYPE, and LC_ALL](https://stackoverflow.com/questions/30479607/explain-the-effects-of-export-lang-lc-ctype-and-lc-all)*
+ 2. *[Explain the effects of export LANG, LC_CTYPE, and LC_ALL](https://stackoverflow.com/questions/30479607/explain-the-effects-of-export-lang-lc-ctype-and-lc-all)*
 
-3. *[What is the difference between .bash_profile and .bashrc](https://apple.stackexchange.com/questions/51036/what-is-the-difference-between-bash-profile-and-bashrc)*
+ 3. *[What is the difference between .bash_profile and .bashrc](https://apple.stackexchange.com/questions/51036/what-is-the-difference-between-bash-profile-and-bashrc)*
 
-4. *[Bash: PS1 vs Prompt Command to set prompt and title](https://superuser.com/questions/1619614/bash-ps1-vs-prompt-command-to-set-prompt-and-title)*
+ 4. *[Bash: PS1 vs Prompt Command to set prompt and title](https://superuser.com/questions/1619614/bash-ps1-vs-prompt-command-to-set-prompt-and-title)*
 
-5. *[Is $PROMPT_COMMAND a colon-separated list?](https://unix.stackexchange.com/questions/460651/is-prompt-command-a-colon-separated-list)*
+ 5. *[Is $PROMPT_COMMAND a colon-separated list?](https://unix.stackexchange.com/questions/460651/is-prompt-command-a-colon-separated-list)*
+
+ 6. *[How To Use Bash History Commands and Expansions on a Linux VPS](https://www.digitalocean.com/community/tutorials/how-to-use-bash-history-commands-and-expansions-on-a-linux-vps)*
+
+ 7. *[A Complete Guide to Linux Bash History](https://www.cherryservers.com/blog/a-complete-guide-to-linux-bash-history)*
+
+ 8. ***[Unify Your macOS Terminal Command History](https://community.jamf.com/t5/jamf-pro/unify-your-macos-terminal-command-history/m-p/227102)***
+
+ 9. *[Preserve bash history in multiple terminal windows](https://unix.stackexchange.com/questions/1288/preserve-bash-history-in-multiple-terminal-windows)*
+
+10. ***[Bash History Logging with rsyslog & forwarding the logs to wazuh](https://medium.com/@RitajBiri/bash-history-logging-with-rsyslog-forwarding-the-logs-to-wazuh-5cb9d1319c6f)***
+
+11. *[Sending bash history to syslog](https://unix.stackexchange.com/questions/457107/sending-bash-history-to-syslog)*
+
+12. [Logging bash history to syslog](https://gist.github.com/JPvRiel/df1d4c795ebbcad522188759c8fd69c7)
+
+13. ***[Mac Logging and the log Command: A Guide for Apple Admins](https://www.kandji.io/blog/mac-logging-and-the-log-command-a-guide-for-apple-admins)***
