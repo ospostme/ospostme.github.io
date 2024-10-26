@@ -66,15 +66,45 @@ Another version with PROMPT_COMMAND,  move detailed info into PROMPT_COMMAND,  t
 ### Add Git Branch in prompt
 
 *`function parse_git_branch() { BRANCH=git branch 2> /dev/null | sed -e '/^[^]/d' -e 's/* (.*)/\1/'`
-if \[ "${BRANCH}" == "" \]
+`if [ "${BRANCH}" == "" ]
 then
 echo ""
 else
 echo "(${BRANCH})"
 fi
-}\`*
+}``*
 
-*`#nps='[' #npe=']' nps='\001' npe='\002' txtred="${nps}\e[0;31m${npe}" # Red txtgrn="${nps}\e[0;32m${npe}" # Green bldgrn="${nps}\e[1;32m${npe}" # Bold Green bldyel="${nps}\e[1;33m${npe}" # Bold Yellow bldpur="${nps}\e[1;35m${npe}" # Bold Purple txtrst="${nps}\e[0m${npe}" # Text Reset PS1="${bldyel}\u`parse_git_branch`$${txtrst} " PROMPT_COMMAND+=( #'your extra command here' ' printf "\001\e[1;32m\002%s %s@%s:%s\001\e[0m\002\n" "$(date)" "$(whoami)". "$(hostname)" "$PWD" ' )`*
+*`#nps='[' `*
+
+*`#npe=']' `*
+
+*`nps='\001' `*
+
+*`npe='\002' `*
+
+*`txtred="${nps}\e[0;31m${npe}" # Red t`*
+
+*`xtgrn="${nps}\e[0;32m${npe}" # Green `*
+
+*`bldgrn="${nps}\e[1;32m${npe}" # Bold Green `*
+
+*`bldyel="${nps}\e[1;33m${npe}" # Bold Yellow `*
+
+*`bldpur="${nps}\e[1;35m${npe}" # Bold Purple `*
+
+*`txtrst="${nps}\e[0m${npe}" # Text Reset `*
+
+*`PS1="${bldyel}\uparse_git_branch$${txtrst} " `*
+
+*`PROMPT_COMMAND+=( `*
+
+*`#'your extra command here' `*
+
+*`' printf "\001\e[1;32m\002%s %s@%s:%s\001\e[0m\002\n" "$(date)" "$(whoami)". "$(hostname)" "$PWD" `*
+
+*`' `*
+
+*`)`*
 
 ### Bash History Setting
 
@@ -122,7 +152,35 @@ After event designators, you can add a colon (`:`) followed by a *word designato
 
 *`ospost $ ls /usr/local/var/log redis.log rsyslogd.log Sat Oct 26 21:40:35 CST 2024 ospost@MacPro.local:/Users/ospost ospost $ cd !!:1 cd /usr/local/var/log Sat Oct 26 21:40:39 CST 2024 ospost@MacPro.local:/usr/local/var/log`*
 
-*`Sat Oct 26 21:56:02 CST 2024 ospost@MacPro.local:/Users/ospost ospost $ ls /usr/local/var/log/ redis.log rsyslogd.log Sat Oct 26 21:56:08 CST 2024 ospost@MacPro.local:/Users/ospost ospost $ !!:0-$ ls /usr/local/var/log/ redis.log rsyslogd.log Sat Oct 26 21:56:12 CST 2024 ospost@MacPro.local:/Users/ospost ospost $ ls -lah !!:1 ls -lah /usr/local/var/log/ total 24K drwxr-xr-x 4 ospost admin 128 Oct 25 21:53 . drwxrwxr-x 6 ospost admin 192 Oct 14 01:18 .. -rw-r--r-- 1 ospost admin 21K Oct 26 14:01 redis.log -rw-r--r-- 1 ospost admin 0 Oct 25 21:53 rsyslogd.log Sat Oct 26 21:56:55 CST 2024 ospost@MacPro.local:/Users/ospost ospost $`*
+*`Sat Oct 26 21:56:02 CST 2024 ospost@MacPro.local:/Users/ospost `*
+
+*`ospost $ ls /usr/local/var/log/ `*
+
+*`redis.log rsyslogd.log `*
+
+*`Sat Oct 26 21:56:08 CST 2024 ospost@MacPro.local:/Users/ospost `*
+
+*`ospost $ !!:0-$ `*
+
+*`ls /usr/local/var/log/ redis.log rsyslogd.log S`*
+
+*`at Oct 26 21:56:12 CST 2024 ospost@MacPro.local:/Users/ospost `*
+
+*`ospost $ ls -lah !!:1 `*
+
+*`ls -lah /usr/local/var/log/ `*
+
+*`total 24K drwxr-xr-x 4 ospost admin 128 Oct 25 21:53 `*
+
+*`. drwxrwxr-x 6 ospost admin 192 Oct 14 01:18 `*
+
+*`.. -rw-r--r-- 1 ospost admin 21K Oct 26 14:01 `*
+
+*`redis.log -rw-r--r-- 1 ospost admin 0 Oct 25 21:53 `*
+
+*`rsyslogd.log `*
+
+*`Sat Oct 26 21:56:55 CST 2024 ospost@MacPro.local:/Users/ospost ospost $`*
 
 ### Scrolling through Bash History
 
