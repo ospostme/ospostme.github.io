@@ -31,7 +31,7 @@ On MacOS, Terminal by default runs a login shell every time, so this is a little
 
 # Customization
 
-### \*\*PS1 \*\*
+### PS1 
 
 The primary prompt string,  will be expanded accordingly before displayed.
 
@@ -80,7 +80,7 @@ fi
 
 By default, bash writes its history at the end of each session, overwriting the existing file with an updated version. This means that if you are logged in with multiple bash sessions, only the last one to exit will have its history saved.
 
-You can work around this by setting the `histappend`setting, which will append instead of overwriting the history. This may be set already, but if it is not, you can enable this by adding this line:
+You can work around this by setting the `histappend `setting, which will append instead of overwriting the history. This may be set already, but if it is not, you can enable this by adding this line:
 
 *`shopt -s histappend`*
 
@@ -94,7 +94,11 @@ To configure this correctly, you’ll need to customize bash’s `PROMPT_COMMAND
 
 * Finally, to load the updated history back into your shell session, use the `history -r` command.
 
-*`export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"`*\
+*`export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"`*
+
+### TBD  Log All Shell Commands
+
+## BASH Command Manipulation
 
 # Reference
 
@@ -123,3 +127,5 @@ To configure this correctly, you’ll need to customize bash’s `PROMPT_COMMAND
 12. [Logging bash history to syslog](https://gist.github.com/JPvRiel/df1d4c795ebbcad522188759c8fd69c7)
 
 13. ***[Mac Logging and the log Command: A Guide for Apple Admins](https://www.kandji.io/blog/mac-logging-and-the-log-command-a-guide-for-apple-admins)***
+
+14. ***[macOS Unified log:](https://eclecticlight.co/2018/03/19/macos-unified-log-1-why-what-and-how/)**[ 1 why, what and how](https://eclecticlight.co/2018/03/19/macos-unified-log-1-why-what-and-how/)*
