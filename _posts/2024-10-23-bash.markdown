@@ -31,7 +31,7 @@ On MacOS, Terminal by default runs a login shell every time, so this is a little
 
 # Customization
 
-### PS1 
+### PS1
 
 The primary prompt string,  will be expanded accordingly before displayed.
 
@@ -80,7 +80,7 @@ fi
 
 By default, bash writes its history at the end of each session, overwriting the existing file with an updated version. This means that if you are logged in with multiple bash sessions, only the last one to exit will have its history saved.
 
-You can work around this by setting the `histappend `setting, which will append instead of overwriting the history. This may be set already, but if it is not, you can enable this by adding this line:
+You can work around this by setting the `histappend`setting, which will append instead of overwriting the history. This may be set already, but if it is not, you can enable this by adding this line:
 
 *`shopt -s histappend`*
 
@@ -98,7 +98,83 @@ To configure this correctly, you’ll need to customize bash’s `PROMPT_COMMAND
 
 ### TBD  Log All Shell Commands
 
+It's will be much more effort saving on linux...
+
+MacOS using Apple Unified Log, it's kind of efficient, high volume of binary logging system.   Shell command has been logged one by one into the system log store,   but how to forward that outside to dedicate flat file ..., not figured out yet
+
 ## BASH Command Manipulation
+
+### short cut
+
+1. !N           execute N th command in history
+
+2. !-N.        execute previous N th command
+
+3. !-1          previous command
+
+4. !!             previous command
+
+5. ^original^replacement^.    recall the previous command (just like`!!`), search for an instance of `original`within the command string, and replace it with `replacement`. It will then execute the command using the replacement string.
+
+### Word Designators
+
+After event designators, you can add a colon (`:`) followed by a *word designator* to select a portion of the matched command.It does this by dividing the command into “words”, which are defined as any chunk separated by whitespace. This allows you some interesting opportunities to interact with your command parameters.The word numbering starts at the initial command as “0”, the first argument as “1”, and continues on from there.
+
+*`ospost $ ls /usr/local/var/log redis.log rsyslogd.log Sat Oct 26 21:40:35 CST 2024 ospost@MacPro.local:/Users/ospost ospost $ cd !!:1 cd /usr/local/var/log Sat Oct 26 21:40:39 CST 2024 ospost@MacPro.local:/usr/local/var/log`*
+
+*`Sat Oct 26 21:56:02 CST 2024 ospost@MacPro.local:/Users/ospost
+ospost $ ls /usr/local/var/log/
+redis.log rsyslogd.log
+Sat Oct 26 21:56:08 CST 2024 ospost@MacPro.local:/Users/ospost
+ospost $ !!:0-$
+ls /usr/local/var/log/
+redis.log rsyslogd.log
+Sat Oct 26 21:56:12 CST 2024 ospost@MacPro.local:/Users/ospost
+ospost $ ls -lah !!:1
+ls -lah /usr/local/var/log/
+total 24K
+drwxr-xr-x 4 ospost admin 128 Oct 25 21:53 .
+drwxrwxr-x 6 ospost admin 192 Oct 14 01:18 ..
+-rw-r--r-- 1 ospost admin 21K Oct 26 14:01 redis.log
+-rw-r--r-- 1 ospost admin 0 Oct 25 21:53 rsyslogd.log
+Sat Oct 26 21:56:55 CST 2024 ospost@MacPro.local:/Users/ospost
+ospost $`*
+
+### Scrolling through Bash History
+
+* `UP arrow key`: Scroll backwards in history
+
+* `CTRL + P`: Scroll backwards in history
+
+* `DOWN arrow key`: Scroll forwards in history
+
+* `CTRL + N`: Scroll forwards in history
+
+* `ALT + SHIFT + .`: Jump to the end of the history (most recent)
+
+* `ALT+ SHIFT + ,`: Jump to the beginning of the history (most distant)
+
+### Searching History
+
+* CTRL \+ R : revert searching
+
+* CTRL \+ S : forward searching
+
+### Modifiers
+
+You can add *modifiers *after a colon (`:`) character at the end of an expansion.
+
+* h  removes the path up until the final slash (`/`) character.
+
+* t   stands for “tail”
+
+* r   strips the trailing extension
+
+* e  moves everything besides the trailing extension
+
+* p  echo the command instead of executing it
+
+* s/original/new/
 
 # Reference
 
