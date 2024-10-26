@@ -122,23 +122,7 @@ After event designators, you can add a colon (`:`) followed by a *word designato
 
 *`ospost $ ls /usr/local/var/log redis.log rsyslogd.log Sat Oct 26 21:40:35 CST 2024 ospost@MacPro.local:/Users/ospost ospost $ cd !!:1 cd /usr/local/var/log Sat Oct 26 21:40:39 CST 2024 ospost@MacPro.local:/usr/local/var/log`*
 
-*`Sat Oct 26 21:56:02 CST 2024 ospost@MacPro.local:/Users/ospost
-ospost $ ls /usr/local/var/log/
-redis.log rsyslogd.log
-Sat Oct 26 21:56:08 CST 2024 ospost@MacPro.local:/Users/ospost
-ospost $ !!:0-$
-ls /usr/local/var/log/
-redis.log rsyslogd.log
-Sat Oct 26 21:56:12 CST 2024 ospost@MacPro.local:/Users/ospost
-ospost $ ls -lah !!:1
-ls -lah /usr/local/var/log/
-total 24K
-drwxr-xr-x 4 ospost admin 128 Oct 25 21:53 .
-drwxrwxr-x 6 ospost admin 192 Oct 14 01:18 ..
--rw-r--r-- 1 ospost admin 21K Oct 26 14:01 redis.log
--rw-r--r-- 1 ospost admin 0 Oct 25 21:53 rsyslogd.log
-Sat Oct 26 21:56:55 CST 2024 ospost@MacPro.local:/Users/ospost
-ospost $`*
+*`Sat Oct 26 21:56:02 CST 2024 ospost@MacPro.local:/Users/ospost ospost $ ls /usr/local/var/log/ redis.log rsyslogd.log Sat Oct 26 21:56:08 CST 2024 ospost@MacPro.local:/Users/ospost ospost $ !!:0-$ ls /usr/local/var/log/ redis.log rsyslogd.log Sat Oct 26 21:56:12 CST 2024 ospost@MacPro.local:/Users/ospost ospost $ ls -lah !!:1 ls -lah /usr/local/var/log/ total 24K drwxr-xr-x 4 ospost admin 128 Oct 25 21:53 . drwxrwxr-x 6 ospost admin 192 Oct 14 01:18 .. -rw-r--r-- 1 ospost admin 21K Oct 26 14:01 redis.log -rw-r--r-- 1 ospost admin 0 Oct 25 21:53 rsyslogd.log Sat Oct 26 21:56:55 CST 2024 ospost@MacPro.local:/Users/ospost ospost $`*
 
 ### Scrolling through Bash History
 
@@ -162,7 +146,7 @@ ospost $`*
 
 ### Modifiers
 
-You can add *modifiers *after a colon (`:`) character at the end of an expansion.
+You can add \*modifiers \*after a colon (`:`) character at the end of an expansion.
 
 * h  removes the path up until the final slash (`/`) character.
 
@@ -175,6 +159,19 @@ You can add *modifiers *after a colon (`:`) character at the end of an expansion
 * p  echo the command instead of executing it
 
 * s/original/new/
+
+*`Sat Oct 26 22:57:50 CST 2024 ospost@MacPro.local:/Users/ospost
+ospost $ gfind /usr/local/var/log/ -name "rsyslogd.log"
+/usr/local/var/log/rsyslogd.log
+Sat Oct 26 22:57:53 CST 2024 ospost@MacPro.local:/Users/ospost
+ospost $ !3148:0:p !3148:1:p !3148:2*:p
+gfind /usr/local/var/log/ -name "rsyslogd"
+ospost $
+ospost $ !3148:s/rsyslogd.log/redis.log/
+gfind /usr/local/var/log/ -name "redis.log"
+/usr/local/var/log/redis.log
+Sat Oct 26 22:59:37 CST 2024 ospost@MacPro.local:/Users/ospost
+ospost $`*
 
 # Reference
 
