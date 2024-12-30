@@ -1,12 +1,12 @@
 ---
 title: Auto Complete and Dictionary
-date: 2024-12-25 21:07:00 Z
+: 2024-12-25 21:07:00 Z
 ---
 
 # VIM Built-in Complete
 
-VIM itself has built-in auto completion, doesn't need any plugin. Complete sources come from the
-open buffers. Whenever you type in the middle of the word, press CTRL-N will trigger auto completion.
+VIM itself has built-in autocompletion, doesn't need any plugin. Complete sources come from the
+open buffers. Whenever you type in the middle of the word, press CTRL-N will trigger autocompletion.
 CTRL-N, CTRL-P to select from the candidate word list.
 
 - [Vim's built-in auto complete is all you need](https://www.youtube.com/watch?v=tFD2Ia5TIQ8)
@@ -28,7 +28,7 @@ CTRL-N, CTRL-P to select from the candidate word list.
 ## [A completion engine plugin for neovim written in Lua](https://github.com/hrsh7th/nvim-cmp)
 
 - Full support for LSP completion related capabilities
-- Other complete sources plugins could integrated with the engine within unified appearance
+- Other complete sources plugins could integrate with the engine within unified appearance
 
 # Spell Check
 
@@ -43,13 +43,13 @@ vim.opt.spelllang = { 'en_us' }
 
 Once set this, Vim will highlight misspelled words. It also categorizes misspelled words,
 highlights rare words, words that are not capitalized (but should be). And even unusual way of
-expression in my case, not sure it's built-in or coming from other plugins...
+expression in my case, not sure if it is built-in or coming from other plugins…
 
-- Red with misspell (in my case)
-- Yellow with rare (in my case)
+- Red with misspell(in my case)
+- Yellow with rare(in my case)
 - ]s Move cursor to the next misspelled word
 - [s Previous misspelled word
-- =z suggestion list to correct the misspell
+- =z suggestion list to correct the misspelling
 - zg add a word to spell dictionary
 - [spell source for nvim-cmp based on vim's spellsuggest](https://github.com/f3fora/cmp-spell)
 - [spellcheck dictionary for programmers](https://github.com/psliwka/vim-dirtytalk)
@@ -60,7 +60,7 @@ expression in my case, not sure it's built-in or coming from other plugins...
 > [Spell Auto correct plugin for Neovim](https://github.com/ck-zhang/mistake.nvim)
 >
 > - over 20,000 entries for correction
-> - based on GitHub's "Fixed typo" commits
+> - based on GitHub's 'Fixed typo' commits
 
 # Dictionary
 
@@ -71,7 +71,7 @@ expression in my case, not sure it's built-in or coming from other plugins...
 - WordNet® is a large lexical database of English. Nouns, verbs, adjectives and adverbs are grouped
   into sets of cognitive synonyms (synsets), each expressing a distinct concept. Synsets are
   interlinked by means of conceptual-semantic and lexical relations. The resulting network of
-  meaningfully related words and concepts can be navigated with the browser(Link is external).
+  meaningfully related words and concepts can be navigated with the browser (Link is external).
   WordNet is also freely and publicly available for download. WordNet's structure makes it a useful
   tool for computational linguistics and natural language processing.
 
@@ -146,7 +146,7 @@ The target is setting up a tool used in nvim to easy access phonetic and sound o
 ### Python Script example with v3 API
 
 Python `soundplay` need to lock the sound resources, but what I'm doing is to put everything in a
-docker, doesn't work with easy install. Just use external utilities to play the sound.
+docker, doesn't work with easy installation. Just use external utilities to play the sound.
 
 ```python
 
@@ -188,16 +188,16 @@ docker, doesn't work with easy install. Just use external utilities to play the 
             fp.close()
 ```
 
-## Sound Play in Mac OS hosted Container
+## Sound Play on macOS hosted Container
 
 - [How to](https://stackoverflow.com/questions/40136606/how-to-expose-audio-from-docker-container-to-a-mac)
 
 - [Test Reference](https://gist.github.com/todgru/42bcaa9b38498b266dc07d6bab100e27)
 
-- [Docker sound on MacOS test](https://gist.github.com/seongyongkim/b7d630a03e74c7ab1c6b53473b592712)
+- [Docker sound on macOS test](https://gist.github.com/seongyongkim/b7d630a03e74c7ab1c6b53473b592712)
 
 - [Enabling Sound Card Access in Docker Containers Using PulseAudio](https://medium.com/@18bhavyasharma/enabling-sound-card-access-in-docker-containers-using-pulseaudio-d52ff1f5eee4)
-- [docker sound box on MacOS](https://devops.datenkollektiv.de/running-a-docker-soundbox-on-mac.html)
+- [docker sound box on macOS](https://devops.datenkollektiv.de/running-a-docker-soundbox-on-mac.html)
 
 - [python playsound](https://stackoverflow.com/questions/64414917/namespace-gst-not-available-error-when-using-playsound-module-in-raspbian-os)
 
@@ -207,7 +207,7 @@ docker, doesn't work with easy install. Just use external utilities to play the 
 
 - [Offline dict with pronunciations](https://askubuntu.com/questions/170775/offline-dictionary-with-pronunciation-and-usages)
 
-  Method in the post is not workable in my case. Change to
+  Method in the post is not workable in my case. Change to:
 
   ```
   qq        # Use register q record Macro
@@ -216,7 +216,7 @@ docker, doesn't work with easy install. Just use external utilities to play the 
 
   ```
 
-### MacOS Host
+### macOS Host
 
 ```cmd
 alias sound='pulseaudio --load=module-native-protocol-tcp --exit-idle-time=-1 --daemon'
@@ -236,3 +236,9 @@ sound
 [uid and gid in docker container](https://medium.com/@mccode/understanding-how-uid-and-gid-work-in-docker-containers-c37a01d01cf)
 
 # Translation
+
+```cmd
+git config –-global credential.helper store
+
+
+```

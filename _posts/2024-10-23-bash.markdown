@@ -130,7 +130,7 @@ _`export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"`_
 
 **TBD Log All Shell Commands**
 
-It's will be much more effort saving on linux...
+It will be much more effort saving on Linux…
 
 MacOS using Apple Unified Log, it's kind of efficient, high volume of binary logging system. Shell command has been logged one by one into the system log store, but how to forward that outside to dedicate flat file ..., not figured out yet
 

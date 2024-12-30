@@ -3,7 +3,7 @@ title: Dev Enviroment with Docker
 date: 2024-12-12 14:31:00 Z
 ---
 
-It's quite time consuming to rebuild a dev env, especially cross different platforms. And due to the app/software version dependency is different, maintain a suit of unified working env on different platform is really not an interesting hobby. After couple of weeks digging, I realize that it will be more reasonable to spend enough time to create an dev environment within docker.
+It's quite time-consuming to rebuild a dev env, especially cross different platforms. And due to the app/software version dependency is different, maintain a suit of unified working env on different platform is really not an interesting hobby. After a couple of weeks digging, I realize that it will be more reasonable to spend enough time to create a dev environment within docker.
 
 - Once it's ready, it could be used on any platforms.
 - Only need to save those important stuffs like dockerfile, customized dotfiles, install scripts, and notes(like this one).
@@ -673,7 +673,6 @@ pip install pysocks
   [Tags generator/management for old school vimers in Neovim](https://github.com/linrongbin16/gentags.nvim)
 
   [tags completion source for nvim-cmp](https://github.com/quangnguyen30192/cmp-nvim-tags)
-
 
 - Debugger
 
