@@ -15,7 +15,7 @@ with other tools.
   configuration
 - Multiple protocols: V2Ray supports multiple protocols, including Socks, HTTP, Shadowsocks, VMess
   VLESS, etc. Each protocol may have its own transport, such as TCP, mKCP, WebSocket etc.
-- Multiple platforms. Windows, Linux, MacOS, Mobile.
+- Multiple platforms. Windows, Linux, macOS, Mobile.
 - Obfuscation: V2Ray has built in obfuscation to hide traffic in TLS, and can run in parallel with
   web servers
 
@@ -33,7 +33,7 @@ with other tools.
 ```
 
 - At least one inbound and one outbond protocol to make v2ray work properly
-- The dispatcher is responsible for choosing a outbound for a given connection based on config
+- The dispatcher is responsible for choosing an outbound for a given connection based on config
 - Possible to work with CDN together
 
 ```
@@ -85,7 +85,7 @@ Couple of things to reveal the magic
   turn on domain proxy, then the domain address will be translated to AN
   IP address in pool **_randomly_**. The real destination IP is unware in the
   middle as the Traffic proxyed by CDN first. The latency is huge :(.
-  Benifit is lower possibility of blocking.
+  Benefit is lower possibility of blocking.
 
 - Visitor/Cloudflare/Origin Server end to end TLS encryption. Unless traffic
   presents obvious characteristic which could be easily identified by AI/ML
@@ -96,13 +96,13 @@ Couple of things to reveal the magic
 
 - qv2ray old but workable and easy to setup
 
-  - [x] MacOS
+  - [x] macOS
   - [x] Linux
   - [x] Windows (anti virus warning)
 
 - V2BOX
   - [x] Iphone
-  - [] MacOS 11.7.10
+  - [] macOS 11.7.10
 
 # Configuration Example
 
