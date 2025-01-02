@@ -21,7 +21,7 @@ date: date: 2024-12-31 09:43:00 Z
     - [Extra benefit](#extra-benefit)
 - [SSH](#ssh)
 - [Docker](#docker)
-- [NVIM Copy/Paste within Tmux session Dev Docker](#nvim-copypaste-within-tmux-session-dev-docker)
+- [NVIM within Tmux navigation on Dev Docker hosted on MacOS](#nvim-within-tmux-navigation-on-dev-docker-hosted-on-macos)
 <!--toc:end-->
 
 # Clipboard
@@ -76,8 +76,8 @@ Once you have text highlighted within the terminal, you can use `CTRL+INSERT`,
 ```
 
 - unnamed register
-  Vim fills this register with text deleted with the "d", "c", "s", "x" commands
-  or copied with the yank "y" command
+  Vim fills this register with text deleted with the “d”, “c”, “s”, “x” commands
+  or copied with the yank “y” command
 
 - Selection registers `quotestar quoteplus`
   Use these registers for storing and retrieving the selected text for the GUI.
@@ -86,8 +86,8 @@ Once you have text highlighted within the terminal, you can use `CTRL+INSERT`,
 
 ## Clipboard
 
-- X11 clipboard providers store text in "selections". Selections are owned by an
-  application.Three X11 selections: PRIMARY, SECONDARY, and CLIPBOARD.
+- X11 clipboard providers store text in “selections”. Selections are owned by an
+  application. Three X11 selections: PRIMARY, SECONDARY, and CLIPBOARD.
 
   - PRIMARY used for the last selected text, which is generally inserted with
     the middle mouse button
@@ -95,7 +95,7 @@ Once you have text highlighted within the terminal, you can use `CTRL+INSERT`,
     (CTRL-c/CTRL-v)
 
 Nvim's X11 clipboard providers only use the PRIMARY and CLIPBOARD selections,
-for the `"\*"` and `"+"` registers, respectively.
+for the `"*"` and `"+"` registers, respectively.
 
 # Tmux
 
@@ -103,7 +103,7 @@ for the `"\*"` and `"+"` registers, respectively.
 `CTRL+b then ?` for tmux key help
 
 Copying with tmux is more like copying in Vim, where it's best done with a
-keyboard rather than a mouse. This is done in tmux copy mode. Tmux has it's
+keyboard rather than a mouse. This is done in tmux copy mode. Tmux has its
 own buffer for copying. By default, moving around in copy mode using arrows.
 
 ## defaults
@@ -152,7 +152,7 @@ bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel 'xc
 ### Extra benefit
 
 Since in vi-copy-mode, navigation in the terminal history contents just like
-in vim, ? + keywords search backward for all the keywords with highlight.
+in vim, `? + keywords` search backward for all the keywords with highlight.
 
 # SSH
 
@@ -186,7 +186,7 @@ clipboard also. Use CTRL-V could paste to the local host.
 Install X11 server on Docker is also an option, but that will increase docker images size
 significantly.
 
-# NVIM within Tmux navigation on Dev Docker hosted on MacOS
+# NVIM within Tmux navigation on Dev Docker hosted on macOS
 
 - Tmux
 
@@ -196,3 +196,20 @@ significantly.
 - NVIM
   - `christoomey/vim-tmux-navigator` navigate seamlessly between vim and tmux
     splits using a consistent set of hotkeys
+  - `preservim/vimux` interacting with tmux from vim effortless. Open a small
+    panel for command execution without lose vim focus. Easy to copy execution
+    output, execute the last command, zoom the runner panel.
+
+```vim
+return {
+  -- https://www.bugsnag.com/blog/tmux-and-vim
+  'preservim/vimux',
+  config = function()
+    vim.cmd [[ nnoremap <leader>tp :VimuxPromptCommand<CR> ]]
+    vim.cmd [[ nnoremap <Leader>tl :VimuxRunLastCommand<CR> ]]
+    vim.cmd [[ nnoremap <Leader>ti :VimuxInspectRunner<CR> ]]
+    vim.cmd [[ nnoremap <leader>tz :VimuxZoomRunner<CR> ]]
+    vim.cmd [[ let g:VimuxCommandShell = 1 ]]
+  end,
+}
+```
