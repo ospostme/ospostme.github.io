@@ -1,5 +1,344 @@
 ---
 title: VIM
-date: 2024-10-23 14:43:00 Z
+date: Thu Jan  2 12:44:43 AM UTC 2025
 ---
 
+# Benefits to stick to VIM/NVIM
+
+## Speed and Efficiency
+
+Once learned, vim allows rapid text manipulation with keyboard strike, enable
+fast coding and editing compare to mouse-based editor.
+
+## Customization
+
+Extensive configurations options allow users to customize VIM with specific
+needs and workflow.
+
+## Portability
+
+As a standard UNIX tool, available on almost any operating system.
+
+# VIM/NVIM options
+
+## vim options example
+
+With plugin suit of LSP, auto format, format options will be overwritten, just
+put here for reference.
+
+```vim
+set mouse=a                 " Enables mouse in all modes (n, v, i, c, etc.).
+set number                  " Displays line numbers in the left margin.
+set nobackup                " Disables the creation of backup files.
+set noswapfile              " This disables the creation of swap files.
+set autoread                " Automatically reload files when they change
+set spell                   " Enable spell checking
+set spelllang=en-US         " Spell checking Language English
+set cursorline              " highlight current line
+
+
+set colorcolumn=100         " highlight column
+set textwidth=100           " text width
+
+"set autoindent
+set formatoptions+=cronm
+                            " t: Auto-wrap text using 'textwidth', not comments
+                            " c: Auto-wrap comments using 'textwidth' not text
+                            "    insert comment leader automatically
+                            " tc: automatic formatting for text and comments
+                            " r: Comment leader with <Enter> in insert mode.
+                            " o: Comment leader when 'o' or 'O' in normal mode.
+                            " n: Recognize numbered lists. When format text
+                            "    need autoident
+                            " m: multibyte character above 255 TBD
+                            " q: Allow formatting of comments with "gq" TBD
+                            " options based on file type TBD
+
+set tabstop=4               " width of a tab
+
+set softtabstop=4           " Affects tab and backspace keys
+                            " number of white spaces with tab and backspace
+
+set shiftwidth=4            " number of white spaces used for one level of
+                            " idenentation in column.
+                            " influences various Vim commands and behaviors
+                            " formatting commands
+                            " cindent
+                            " autoindent
+
+set noexpandtab             " disable automatic conversion of tab spaces
+
+set list                    " display invisible characters
+set listchars=...           "
+
+set clipboard=unnamedplus   " Sync clipboard between OS and Neovim.
+
+set undofile=true           " Save undo history
+
+set ignorecase=true         " Case-insensitive searching UNLESS \C or one or
+                            " more capital letters in the search term
+set smartcase=true
+
+set scrolloff=10            " Minimal number of screen lines to keep above
+                            " and below the cursor.
+
+set breakindent=true        " wrapped lines have an indentation level starting
+                            " at the indentation level of the line itself
+
+set inccommand=split        " Preview substitutions live with another small
+                            " window, as you type!
+```
+
+## NVIM style options
+
+With plugin suit of LSP, auto format, format options will be over written, just
+put here for reference.
+
+```vim
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+
+-- Set to true if you have a Nerd Font installed and selected in the terminal
+vim.g.have_nerd_font = true
+
+-- [[ Setting options ]]
+-- See `:help vim.opt`
+-- For more options, you can see `:help option-list`
+
+-- Make line numbers default
+vim.opt.number = true
+-- You can also add relative line numbers, to help with jumping.
+-- Experiment for yourself to see if you like it!
+-- vim.opt.relativenumber = true
+
+-- Enable mouse mode, can be useful for resizing splits for example!
+vim.opt.mouse = 'a'
+
+-- Don't show the mode, since it's already in the status line
+vim.opt.showmode = false
+
+-- Sync clipboard between OS and Neovim.
+--  Schedule the setting after `UiEnter` because it can increase startup-time.
+--  Remove this option if you want your OS clipboard to remain independent.
+--  See `:help 'clipboard'`
+vim.schedule(function()
+  vim.opt.clipboard = 'unnamedplus'
+end)
+
+-- Enable break indent
+-- wrapped lines have an indentation level starting at the indentation level
+-- of the line itself
+vim.opt.breakindent = true
+
+-- Save undo history
+vim.opt.undofile = true
+
+-- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+
+-- Keep signcolumn on by default
+vim.opt.signcolumn = 'yes'
+
+-- Decrease update time
+vim.opt.updatetime = 250
+
+-- Decrease mapped sequence wait time
+-- Displays which-key popup sooner
+vim.opt.timeoutlen = 300
+
+-- Configure how new splits should be opened
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+
+-- Sets how neovim will display certain whitespace characters in the editor.
+--  See `:help 'list'`
+--  and `:help 'listchars'`
+vim.opt.list = true
+vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+
+-- Preview substitutions live with another small window, as you type!
+vim.opt.inccommand = 'split'
+
+-- Show which line your cursor is on
+vim.opt.cursorline = true
+
+-- Show column border
+vim.opt.colorcolumn = 80
+
+-- textwidth for auto wrap
+vim.opt.textwidth = 80
+
+-- Minimal number of screen lines to keep above and below the cursor.
+vim.opt.scrolloff = 10
+
+-- No swap/backup files
+vim.opt.noswapfile = true
+vim.opt.nobackup = true
+vim.opt.autoread = true
+
+
+-- width of a tab
+vim.opt.tabstop = 4
+
+-- Affects tab and backspace keys
+-- number of white spaces with tab and backspace
+vim.opt.softtabstop = 4
+
+-- number of white spaces used for one level of
+-- idenentation in column.
+-- influences various Vim commands and behaviors
+-- formatting commands
+-- cindent
+-- autoindent
+vim.opt.shiftwidth = 4
+
+-- disable automatic conversion of tab spaces
+-- vim.opt.noexpandtab
+
+-- check current buffer format options with
+-- :lua print(vim.bo.formatoptions)
+vim.opt.formatoptions:append('')
+```
+
+# VIM/NVIM Basic Operation
+
+`:help`
+
+# Leverage latest tools with Plugins to build YOUR own IDE
+
+## Important aspects in integrated workflow
+
+### telescope and fuzzy finder
+
+#### Primary components
+
+- 1 Picker: central UI dedicated to varying use cases
+  (finding files, grepping, diagnostics, etc.)
+  see :h telescope.builtin
+- 2 Finder: pipe or interactively generates results to pick over
+- 3 Prompt: user input that triggers the finder which sorts results
+  in order into the entry manager
+- 4 Results: listed entries scored by sorter from finder results
+- 5 Previewer: preview of context of selected entry
+  see :h telescope.previewers
+
+#### Mode concept
+
+Telescope has normal, insert modes just as vim. In insert mode, input goes into
+prompt directly, finder generates search results at the same time. In normal mode,
+it's possible to navigate the results list with VIM keys (`j/k/H/M/L/gg/G`).
+
+#### Mapping
+
+[Understand the Keys](https://github.com/tmux/tmux/wiki/Modifier-Keys)
+
+| Mapping | Action                                         |
+| ------- | ---------------------------------------------- |
+| <tab>   | Toggle selection and move to next              |
+| <s-tab> | Toggle selection and move to previous item     |
+| <C-q>   | send all to quick fix list                     |
+| <M-q>   | send all selected to quick fix                 |
+| <C-n>   | next                                           |
+| <C-p>   | previous                                       |
+| <C-x>   | Go the file as a split                         |
+| <C-v>   | Go the file as a vsplit                        |
+| `<C-/>` | Show mappings for picker actions (insert mode) |
+| ?       | Show mappings for picker actions (normal mode) |
+| j/k     | Next/previous (in normal mode)                 |
+| H/M/L   | Select High/Middle/Low (in normal mode)        |
+| gg/G    | Select the first/last item (in normal mode)    |
+
+[nvim-telescope/telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
+
+### TMUX
+
+[Copy and Paste](/2025/12/31/copy-paste)
+
+[TMUX](/2025/12/12/development-enviroment-docker)
+
+### autocompletion
+
+[autocomplete](/2025/12/25/nvim-auto-complete-and-dictionary)
+
+### LSP
+
+[LSP](/2025/12/12/development-enviroment-docker)
+
+### Tree sitter
+
+[treesitter](/2025/12/12/development-enviroment-docker)
+
+### technical docs written
+
+[markdown](/2025/12/12/development-enviroment-docker)
+
+### Quick Fix
+
+- Location List
+  A location list is a window-local quickfix list.
+  A location list is associated with a window and each window can have a
+  separate location list. A location list can be associated with only one
+  window. The location list is independent of the quickfix list.
+  When a window with a location list is split, the new window gets a copy of the
+  location list. When there are no longer any references to a location list,
+  the location list is destroyed.
+  The location list commands are similar to the quickfix commands, replacing the
+  'c' prefix in the quickfix command with 'l'.
+
+  - command to generate location list
+    `:lvimgrep`, `:lgrep`, `:lhelpgrep`, `:lmake`
+  - location list command
+    `:lopen`,`:lnext`,`lprev`,`lfirst`,`llast`
+
+- Quick Fix List
+  Quick fix list is global to vim session. Each quickfix list has a unique
+  identifier called the quickfix ID and this number will not change within a Vim
+  session.
+
+  - command to generate quick fix list
+    `:vimgrep`, `:grep`, `:helpgrep`, `:make`
+  - quick fix list command
+    `:copen`,`:cnext`,`cprev`,`cc`,`cfirst`
+
+  - telescope search with `CTRL+q`, put search results into quick fix list
+
+  - Maps for navigation
+    `vim.keymap.set('n', '<M-j>', '<cmd>cnext<cr>', { desc = '' })`
+    `vim.keymap.set('n', '<M-k>', '<cmd>cprev<cr>', { desc = '' })`
+
+  - `:cdo`
+
+# [Register and MACRO](https://www.brianstorti.com/vim-registers/)
+
+# Copy/Paste
+
+[Copy and Paste](/2025/12/31/copy-paste)
+
+# tips easy to forget
+
+- `:r !command`
+  insert command execution results into current buffer
+
+- `:%! grep xxx`
+  grep xxx results in current buffer
+
+- undo/redo
+  `u`, undo the edit. (undo history related)
+  `<C-r>` redo the changes which were undone (undo history related)
+  `U` reverse all changes in last modified line, the reverse itself could be
+  reverted by `u`
+
+- binary file
+  `vim -b file`
+  `%!xxd` convert to hex display
+  `%!xxd -r` convert back
+
+- `<C-r>`
+  reference registers in c, i mode
+
+  CTRL-F the Filename under the cursor
+  CTRL-P the Filename under the cursor, expanded with 'path'
+  CTRL-W the Word under the cursor
+  CTRL-A the WORD under the cursor
+  CTRL-L the line under the cursor
