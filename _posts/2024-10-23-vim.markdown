@@ -323,7 +323,7 @@ it's possible to navigate the results list with VIM keys (`j/k/H/M/L/gg/G`).
 - `:%! grep xxx`
   grep xxx results in current buffer
 
-- undo/redo
+- Undo/redo
   `u`, undo the edit. (undo history related)
   `<C-r>` redo the changes which were undone (undo history related)
   `U` reverse all changes in last modified line, the reverse itself could be

@@ -199,6 +199,8 @@ significantly.
   - `preservim/vimux` interacting with tmux from vim effortless. Open a small
     panel for command execution without lose vim focus. Easy to copy execution
     output, execute the last command, zoom the runner panel.
+    Although it was originally designed for running test, copy results, still
+    deserve to notice, especially `VimuxInspectRunner` and `VimuxZoomRunner`.
 
 ```vim
 return {

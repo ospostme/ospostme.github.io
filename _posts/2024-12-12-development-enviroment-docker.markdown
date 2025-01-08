@@ -345,7 +345,9 @@ set -g @plugin 'jimeh/tmuxifier'
 # available plugins: battery, cpu-usage, git, gpu-usage, ram-usage, tmux-ram-usage,
 # network, network-bandwidth, network-ping, ssh-session, attached-clients, network-vpn, weather, time, mpc, spotify-tui, krbtgt,
 # playerctl, kubernetes-context, synchronize-panes
-set -g @dracula-plugins "cpu-usage ram-usage battery"
+set -g @dracula-plugins "time network cpu-usage ram-usage battery"
+set -g @dracula-battery-label false
+set -g @dracula-show-battery-status true
 set -g @dracula-show-powerline true
 
 # Make the status line pretty and add some modules
@@ -561,6 +563,76 @@ message "tmux installed" 9 10
 
 ```
 
+> Docker Container Customize
+> Container environment has its own limitation, small customization for Tmux
+
+```
+macOS host:
+ospost $ cat ~/.mac_battery.sh
+#!/usr/bin/env bash
+
+while true; do
+    echo $(pmset -g batt | grep -Eo '[0-9]?[0-9]?[0-9]%') >/Volumes/Data/DEV-HOME-DOCKER/battery_host_p
+    echo $(pmset -g batt | sed -n 2p | cut -d ';' -f 2 | tr -d " ") >/Volumes/Data/DEV-HOME-DOCKER/battery_host_s
+    sleep 15
+done
+
+
+Docker compose file:
+    ...
+    ...
+    volumes:
+      - /Volumes/Data/DEV-HOME-DOCKER/battery_host_p:/home/ospost/.battery_host_p
+      - /Volumes/Data/DEV-HOME-DOCKER/battery_host_s:/home/ospost/.battery_host_s
+
+
+
+tmux plugin:
+
+(base) ospost@DEV-DOCKER:~/.tmux/plugins/tmux/scripts(master)$ git diff
+diff --git a/scripts/battery.sh b/scripts/battery.sh
+index 65a20d8..800b20a 100755
+--- a/scripts/battery.sh
++++ b/scripts/battery.sh
+@@ -39,13 +39,15 @@ battery_percent()
+ {
+   # Check OS
+   case $(uname -s) in
+-    Linux)
++
++    Darwin)
+       percent=$(linux_acpi percent)
+       [ -n "$percent" ] && echo "$percent%"
+       ;;
+
+-    Darwin)
+-      echo $(pmset -g batt | grep -Eo '[0-9]?[0-9]?[0-9]%')
++    Linux)
++      #echo $(pmset -g batt | grep -Eo '[0-9]?[0-9]?[0-9]%')
++      echo `cat /home/ospost/.battery_host_p`
+       ;;
+
+     FreeBSD)
+@@ -65,12 +67,13 @@ battery_status()
+ {
+   # Check OS
+   case $(uname -s) in
+-    Linux)
++    Darwin)
+       status=$(linux_acpi status)
+       ;;
+
+-    Darwin)
+-      status=$(pmset -g batt | sed -n 2p | cut -d ';' -f 2 | tr -d " ")
++    Linux)
++      #status=$(pmset -g batt | sed -n 2p | cut -d ';' -f 2 | tr -d " ")
++      status=`cat /home/ospost/.battery_host_s`
+       ;;
+
+     FreeBSD)
+
+```
+
 # sdk-man
 
 ```bash
@@ -738,3 +810,35 @@ Change HOMEBREW_PREFIX in brew.sh, then install
 # miniforge3/conda
 
 Community-driven packaging for conda
+
+# macOS host customization
+
+To smoothly use dev docker, kind of customization also made on host side:
+
+- start x11 server, then docker could sync with system clipboard, operate with
+  `CTRL-C/CTRL-V`
+
+- start sound server, share the config with container, then container apps could
+  connect to the sound server directly
+
+- periodically record battery status, sync the results with file mount, then
+  the container could use that into within tmux plugin with minus modification.
+
+```bash
+
+docker_setup() {
+    $(pulseaudio --load=module-native-protocol-tcp --exit-idle-time=-1 --daemon)
+    $(
+	open -a XQuartz
+	xhost +localhost
+    )
+    $(nohup ~/.mac_battery.sh &)
+} && export docker_setup
+
+while true; do
+    echo $(pmset -g batt | grep -Eo '[0-9]?[0-9]?[0-9]%') >/Volumes/Data/DEV-HOME-DOCKER/battery_host_p
+    echo $(pmset -g batt | sed -n 2p | cut -d ';' -f 2 | tr -d " ") >/Volumes/Data/DEV-HOME-DOCKER/battery_host_s
+    sleep 15
+done
+
+```
