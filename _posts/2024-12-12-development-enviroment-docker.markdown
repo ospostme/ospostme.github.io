@@ -685,77 +685,78 @@ pip install pysocks
 
 - kickstart
 
-  [NVIM kickstart](https://youtu.be/m8C0Cq9Uv9o)
+  - [NVIM kickstart](https://youtu.be/m8C0Cq9Uv9o)
 
-  [A Great NVIM kickstart template](https://github.com/nvim-lua/kickstart.nvim)
+  - [A Great NVIM kickstart template](https://github.com/nvim-lua/kickstart.nvim)
 
-  [From 0 to IDE in NEOVIM from scratch](https://youtu.be/zHTeCSVAFNY?list=PLsz00TDipIffreIaUNk64KxTIkQaGguqn)
+  - [From 0 to IDE in NEOVIM from scratch](https://youtu.be/zHTeCSVAFNY?list=PLsz00TDipIffreIaUNk64KxTIkQaGguqn)
 
-  [workflow example](https://www.youtube.com/watch?v=G7-qUMKSH_Y&t=784s)
+  - [workflow example](https://www.youtube.com/watch?v=G7-qUMKSH_Y&t=784s)
 
 - MarkDown
 
-  [MarkDown Crash Course](https://youtu.be/_PPWWRV6gbA)
+  - [MarkDown Crash Course](https://youtu.be/_PPWWRV6gbA)
 
-  [Syntax highlighting](https://github.com/preservim/vim-markdown)
+  - [Syntax highlighting](https://github.com/preservim/vim-markdown)
 
-  [Markdown direct preview in nvim](https://github.com/ellisonleao/glow.nvim)
+  - [Markdown direct preview in nvim](https://github.com/ellisonleao/glow.nvim)
 
-  [Zoom focus/Distraction-free writing](https://github.com/junegunn/goyo.vim)
+  - [Zoom focus/Distraction-free writing](https://github.com/junegunn/goyo.vim)
 
-  [Hyperfocus-writing](https://github.com/junegunn/limelight.vim)
+  - [Hyperfocus-writing](https://github.com/junegunn/limelight.vim)
 
-  [improve viewing Markdown files in Neovim](https://github.com/MeanderingProgrammer/render-markdown.nvim)
+  - [improve viewing Markdown files in Neovim](https://github.com/MeanderingProgrammer/render-markdown.nvim)
 
-  [Draw ASCII diagrams in Neovim](https://github.com/jbyuki/venn.nvim)
+  - [Draw ASCII diagrams in Neovim](https://github.com/jbyuki/venn.nvim)
 
-  [Preview Markdown in your modern browser with synchronised scrolling and flexible configuration](https://github.com/iamcco/markdown-preview.nvim)
+  - [Preview Markdown in your modern browser with synchronised scrolling and flexible configuration](https://github.com/iamcco/markdown-preview.nvim)
 
 - Mason
   Portable package manager for Neovim that runs everywhere Neovim runs.Easily install and manage LSP servers, DAP servers, linters, and formatters.
 
 - Treesitter Highlight edit and navigate code
 
-  [What is Treesitter](https://youtu.be/09-9LltqWLY)
+  - [What is Treesitter](https://youtu.be/09-9LltqWLY)
 
 - LSP
 
-  [LSP in nvim](https://youtu.be/S-xzYgTLVJE)
+  - [LSP in nvim](https://youtu.be/S-xzYgTLVJE)
 
-  [Learn By Building: Language Server Protocol](https://youtu.be/YsdlcQoHqPY)
+  - [Learn By Building: Language Server Protocol](https://youtu.be/YsdlcQoHqPY)
 
 - Completion
 
-  [vim built-in autocomplete](https://youtu.be/tFD2Ia5TIQ8)
+  - [vim built-in autocomplete](https://youtu.be/tFD2Ia5TIQ8)
 
-  [Vim Autocomplete Mini-Overview](https://youtu.be/bu_AIAp7hCY)
+  - [Vim Autocomplete Mini-Overview](https://youtu.be/bu_AIAp7hCY)
 
-  [Autocomplete and Snippets in Neovim](https://youtu.be/iXIwm4mCpuc)
+  - [Autocomplete and Snippets in Neovim](https://youtu.be/iXIwm4mCpuc)
 
-  [nvim complete](https://github.com/hrsh7th/nvim-cmp)
+  - [nvim complete](https://github.com/hrsh7th/nvim-cmp)
 
-  [nvim-cmp source for buffer words](https://github.com/hrsh7th/cmp-buffer)
+  - [nvim-cmp source for buffer words](https://github.com/hrsh7th/cmp-buffer)
 
-  [A dictionary completion source for nvim-cmp](https://github.com/uga-rosa/cmp-dictionary)
+  - [A dictionary completion source for nvim-cmp](https://github.com/uga-rosa/cmp-dictionary)
 
-  [wamerican](https://unix.stackexchange.com/questions/213628/where-do-the-words-in-usr-share-dict-words-come-from)
+  - [wamerican](https://unix.stackexchange.com/questions/213628/where-do-the-words-in-usr-share-dict-words-come-from)
 
-  [spell source for nvim-cmp based on vim's spellsuggest](https://github.com/f3fora/cmp-spell)
+  - [spell source for nvim-cmp based on vim's spellsuggest](https://github.com/f3fora/cmp-spell)
 
-  [Tags generator/management for old school vimers in Neovim](https://github.com/linrongbin16/gentags.nvim)
+  - [Tags generator/management for old school vimers in Neovim](https://github.com/linrongbin16/gentags.nvim)
 
-  [tags completion source for nvim-cmp](https://github.com/quangnguyen30192/cmp-nvim-tags)
+  - [tags completion source for nvim-cmp](https://github.com/quangnguyen30192/cmp-nvim-tags)
 
 - Debugger
 
-  [TBD](TBD)
+  - [TBD](TBD)
 
 ## C/C++ dev
 
 - CMake
 
-  [CMake vs Make](https://keasigmadelta.com/blog/cmake-vs-make-a-developers-perspective/?srsltid=AfmBOor4RTmyF6eVtFlLbJhein3xl2cjBeERAJ3_Vd-tVcyC5BxHZW_q)
-  [CMake Learning](https://cliutils.gitlab.io/modern-cmake/README.html)
+  - [CMake vs Make](https://keasigmadelta.com/blog/cmake-vs-make-a-developers-perspective/?srsltid=AfmBOor4RTmyF6eVtFlLbJhein3xl2cjBeERAJ3_Vd-tVcyC5BxHZW_q)
+
+  - [CMake Learning](https://cliutils.gitlab.io/modern-cmake/README.html)
 
 - Conan
   Conan is a dependency and package manager for C and C++ languages. It is free and open-source, works in all platforms ( Windows, Linux, OSX, FreeBSD, Solaris, etc.), and can be used to develop for all targets including embedded, mobile (iOS, Android), and bare metal. It also integrates with all build systems like CMake, Visual Studio (MSBuild), Makefiles, SCons, etc., including proprietary ones.
@@ -764,33 +765,33 @@ pip install pysocks
 
 - nvim plugin
 
-  [cmake plugin](https://github.com/cdelledonne/vim-cmake)
+  - [cmake plugin](https://github.com/cdelledonne/vim-cmake)
 
-  [Gtest]()
+  - [Gtest]()
 
-  [lsp]()
+  - [lsp]()
 
-  [treesitter]()
+  - [treesitter]()
 
-  [debug adapter]()
+  - [debug adapter]()
 
-  [linter]()
+  - [linter]()
 
-  [format]()
+  - [format]()
 
 ## Python dev
 
-[lsp]()
+- [lsp]()
 
-[treesitter]()
+- [treesitter]()
 
-[debug adapter]()
+- [debug adapter]()
 
-[linter]()
+- [linter]()
 
-[format]()
+- [format]()
 
-[vim test runner]()
+- [vim test runner]()
 
 ## Java dev
 
