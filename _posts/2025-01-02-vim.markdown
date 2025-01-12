@@ -233,45 +233,45 @@ it's possible to navigate the results list with VIM keys (`j/k/H/M/L/gg/G`).
 
 [Understand the Keys](https://github.com/tmux/tmux/wiki/Modifier-Keys)
 
-| Mapping | Action                                         |
-| ------- | ---------------------------------------------- |
-| <tab>   | Toggle selection and move to next              |
-| <s-tab> | Toggle selection and move to previous item     |
-| <C-q>   | send all to quick fix list                     |
-| <M-q>   | send all selected to quick fix                 |
-| <C-n>   | next                                           |
-| <C-p>   | previous                                       |
-| <C-x>   | Go the file as a split                         |
-| <C-v>   | Go the file as a vsplit                        |
-| `<C-/>` | Show mappings for picker actions (insert mode) |
-| ?       | Show mappings for picker actions (normal mode) |
-| j/k     | Next/previous (in normal mode)                 |
-| H/M/L   | Select High/Middle/Low (in normal mode)        |
-| gg/G    | Select the first/last item (in normal mode)    |
+| Mapping   | Action                                         |
+| --------- | ---------------------------------------------- |
+| `<tab>`   | Toggle selection and move to next              |
+| `<s-tab>` | Toggle selection and move to previous item     |
+| `<C-q>`   | send all to quick fix list                     |
+| `<M-q>`   | send all selected to quick fix                 |
+| `<C-n>`   | next                                           |
+| `<C-p>`   | previous                                       |
+| `<C-x>`   | Go the file as a split                         |
+| `<C-v>`   | Go the file as a vsplit                        |
+| `<C-/>`   | Show mappings for picker actions (insert mode) |
+| `? `      | Show mappings for picker actions (normal mode) |
+| `j/k `    | Next/previous (in normal mode)                 |
+| `H/M/L`   | Select High/Middle/Low (in normal mode)        |
+| `gg/G `   | Select the first/last item (in normal mode)    |
 
 [nvim-telescope/telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
 
 ### TMUX
 
-[Copy and Paste](/2025/12/31/copy-paste)
+[Copy and Paste](/2024/12/31/copy-paste)
 
-[TMUX](/2025/12/12/development-enviroment-docker)
+[TMUX](/2024/12/12/development-enviroment-docker)
 
 ### autocompletion
 
-[autocomplete](/2025/12/25/nvim-auto-complete-and-dictionary)
+[autocomplete](/2024/12/25/nvim-auto-complete-and-dictionary)
 
 ### LSP
 
-[LSP](/2025/12/12/development-enviroment-docker)
+[LSP](/2024/12/12/development-enviroment-docker)
 
 ### Tree sitter
 
-[treesitter](/2025/12/12/development-enviroment-docker)
+[treesitter](/2024/12/12/development-enviroment-docker)
 
 ### technical docs written
 
-[markdown](/2025/12/12/development-enviroment-docker)
+[markdown](/2024/12/12/development-enviroment-docker)
 
 ### Quick Fix
 

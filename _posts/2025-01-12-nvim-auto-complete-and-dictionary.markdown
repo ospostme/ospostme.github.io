@@ -1,6 +1,6 @@
 ---
-title: 2024 12 25 Nvim Auto Complete And Dictionary
-date: 2025-01-12 20:34:10.476000000 Z
+title: Auto Complete and Dictionary
+date: 2024-12-25 21:07:00 Z
 ---
 
 # VIM Built-in Complete
