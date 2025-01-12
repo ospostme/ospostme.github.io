@@ -1,6 +1,6 @@
 ---
-title: Copy and Paste
-date: date: 2024-12-31 09:43:00 Z
+title: 2024 12 31 Copy Paste
+date: 2025-01-12 20:34:10.503000000 Z
 ---
 
 <!--toc:start-->

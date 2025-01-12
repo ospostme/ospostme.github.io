@@ -1,6 +1,6 @@
 ---
 title: VIM
-date: Thu Jan  2 12:44:43 AM UTC 2025
+date: 2025-01-02 00:44:43 Z
 ---
 
 # Benefits to stick to VIM/NVIM

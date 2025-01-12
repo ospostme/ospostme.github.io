@@ -1,6 +1,6 @@
 ---
 title: Expensive Try
-date: Fri Jan 10 11:15:32 PM CST 2025
+date: 2025-01-11 05:15:32 Z
 ---
 
 # Target

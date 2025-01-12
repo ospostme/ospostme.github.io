@@ -1,6 +1,6 @@
 ---
 title: Workflow
-date: Thu Jan  9 12:58:58 AM CST 2025
+date: 2025-01-09 06:58:58 Z
 ---
 
 # Terminals
