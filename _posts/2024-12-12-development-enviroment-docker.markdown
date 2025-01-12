@@ -7,10 +7,9 @@ It's quite time-consuming to rebuild a dev env, especially cross different platf
 
 - Once it's ready, it could be used on any platforms.
 - Only need to save those important stuffs like dockerfile, customized dotfiles, install scripts, and notes(like this one).
-- You can re-create the dev environment anytime
+- You can re-create the dev environment anytime.
 
 ```
-
               Docker Image
       ┌──────────────────────────┐  ┌──────────────────────────────────────┐
       │   Basic ubuntu packages  │  │    Install scripts (manually trigger)│
@@ -819,22 +818,25 @@ To smoothly use dev docker, kind of customization also made on host side:
 - start x11 server, then docker could sync with system clipboard, operate with
   `CTRL-C/CTRL-V`
 
-- start sound server, share the config with container, then container apps could
-  connect to the sound server directly
+- start xdg-open-server, then container could forward `xdg-open` to host
 
 - periodically record battery status, sync the results with file mount, then
   the container could use that into within tmux plugin with minus modification.
 
+- start sound server, share the config with container, then container apps could
+  connect to the sound server directly
+
 ```bash
 
 docker_setup() {
-    $(pulseaudio --load=module-native-protocol-tcp --exit-idle-time=-1 --daemon)
-    $(
-	open -a XQuartz
-	xhost +localhost
-    )
-    $(nohup ~/.mac_battery.sh &)
+	`open -a XQuartz`
+	xhost localhost
+	nohup /usr/local/bin/xdg-open-server > /dev/null 2>&1 &
+	nohup socat -d -d -d -lf ns-socat.log TCP-LISTEN:5678,reuseaddr,fork UNIX-CLIENT:/Users/ospost/var/run/501/xdg-open-server/socket >/dev/null 2>&1 &
+	nohup ~/.mac_battery.sh &
+	`pulseaudio --load=module-native-protocol-tcp --exit-idle-time=-1 --daemon`
 } && export docker_setup
+
 
 while true; do
     echo $(pmset -g batt | grep -Eo '[0-9]?[0-9]?[0-9]%') >/Volumes/Data/DEV-HOME-DOCKER/battery_host_p

@@ -99,7 +99,7 @@ for the `"*"` and `"+"` registers, respectively.
 
 # Tmux
 
-[Everything you need to know about Tmux copy paste - Ubuntu](https://www.rushiagr.com/blog/2016/06/16/everything-you-need-to-know-about-tmux-copy-pasting-ubuntu/)
+[Everything you need to know about Tmux copy and paste - Ubuntu](https://www.rushiagr.com/blog/2016/06/16/everything-you-need-to-know-about-tmux-copy-pasting-ubuntu/)
 `CTRL+b then ?` for tmux key help
 
 Copying with tmux is more like copying in Vim, where it's best done with a

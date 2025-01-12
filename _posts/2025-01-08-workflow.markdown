@@ -1,0 +1,114 @@
+---
+title: Workflow
+date: Thu Jan  9 12:58:58 AM CST 2025
+---
+
+# Terminals
+
+- [macOS ALT/Meta key map](https://www.clairecodes.com/blog/2018-10-15-making-the-alt-key-work-in-iterm2/)
+
+- [vim window zoom](https://medium.com/@vinodkri/zooming-vim-window-splits-like-a-pro-d7a9317d40)
+
+- [vim and tmux](https://www.bugsnag.com/blog/tmux-and-vim/)
+
+- [nvim tmux on macOS](https://medium.com/@karpov-kir/nvim-tmux-smart-navigation-and-resizing-on-macos-6bcb3c1d0e02)
+
+- [Tmux keys](https://github.com/tmux/tmux/wiki/Modifier-Keys)
+
+- [Lynx Text Web Browser FTW](https://www.youtube.com/watch?v=Vdd2MTv6vrs&t=22s)
+
+# Desktop Classification
+
+- [smart split](https://github.com/mrjones2014/smart-splits.nvim)
+
+```
+
+       CTRL + ->   switch desktop
+       CTRL + <-   switch desktop
+
+ ┌────────┐   ┌────────┐   ┌────────┐   ┌────────┐   ┌────────┐   ┌────────┐
+ │        │   │        │   │        │   │        │   │        │   │        │ +
+ └────────┘   └────────┘   └────────┘   └────────┘   └────────┘   └────────┘
+  host        Ref          Dev Docker   Search       Monitors     Other GUIs
+  terminal    Browser      terminal     Browser
+
+                               │
+                               │
+                               │
+                               ▼
+      ┌────────────────────────────┐ ┌─────────────────┐
+      │                            │ │                 │
+      │  main window               │ │  command        │
+      │                            │ │  browser        │
+      │                            │ │                 │
+      │                            │ │                 │
+      │                            │ │                 │
+      │                            │ │                 │
+      │                            │ │                 │
+      │                            │ ├─────────────────┤
+      │                            │ │ other           │
+      │                            │ │                 │
+      ├────────────────────────────┤ │                 │
+      │ qf window                  │ │                 │
+      ├────────────────────────────┴─┴─────────────────┤
+      │P1/P2/P3/p4 window tab        status bar        │
+      └────────────────────────────────────────────────┘
+
+
+      1. Window/Panel moving with       CTRL + HJKL
+      2. Window/Panel resizing with     ALT + HJKL
+      3. Tmux pane split                <tmux leader> | or -
+      4. Vim vsplit                                 vv
+
+      5. Maxim current tmux pane        <tmux leader>z
+      6. restore the zoomed tmux pane   <tmux leader>z
+      7. vim maximum current pane                    m
+      8. vim back to equal size                      b
+      9. Close other splited windows    <CTRL-W> o
+
+     10. Terminal command within vim    <vim leader>tp
+     11. zoom runner window in vim      <vim leader>tz
+     12. restore zoomed runner window   just move cursor to other window
+     13. zoom runner window in vim      <vim leader>tz
+
+     14. Move to next window            <tmux leader>n
+     15. Move to previous window        <tmux leader>p
+
+     16. Quick fix window               <leader>q
+     17. Disalbe virtual text           <leader>dd
+     18. Enable  virtual text           <leader>de
+     19. Toggle diagnositc              <leader>dt
+
+     20. Open url link with host                    gx
+
+     21. Browse search                  <leader>bs
+                                        <leader>bk
+                                        <leader>bo
+                                        <leader>bm
+
+     22. Dictionary                     <leader>ld
+     23. <word> prounciation            <leader>lv
+     24. copy current file name                    fn
+     25. copy current url                          fu
+     26. wrap selected lines                       gq
+
+
+     10. Terminal command within vim    <vim leader>tp
+
+         WITH MODIFIED LYNX
+         <vim leader> tp
+            Enter: ? apple
+                   automatically start lynx on
+                   the next pane, and search with goole
+
+            Enter: https://www.google.com
+                   start lynx, visit google
+
+            Enger: g www.xxxx.com
+                   visit xxx with opened lynx
+
+        Open Image link with mouse click with host browser
+        Doesn't work now.
+
+
+```
