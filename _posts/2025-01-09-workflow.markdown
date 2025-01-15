@@ -94,6 +94,8 @@ date: 2025-01-09 06:58:58 Z
      27. select a paragraph                    vip/vap
      28. move you between paragraphs               {/}
 
+     29. Search file open with nvim                 fn
+
 
      10. Terminal command within vim    <vim leader>tp
 
