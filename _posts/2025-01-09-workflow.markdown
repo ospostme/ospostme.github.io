@@ -88,9 +88,11 @@ date: 2025-01-09 06:58:58 Z
 
      22. Dictionary                     <leader>ld
      23. <word> prounciation            <leader>lv
-     24. copy current file name                    fn
-     25. copy current url                          fu
-     26. wrap selected lines                       gq
+     24. copy current file name                     fn
+     25. copy current url                           fu
+     26. wrap selected lines                        gq
+     27. select a paragraph                    vip/vap
+     28. move you between paragraphs               {/}
 
 
      10. Terminal command within vim    <vim leader>tp
@@ -99,7 +101,7 @@ date: 2025-01-09 06:58:58 Z
          <vim leader> tp
             Enter: ? apple
                    automatically start lynx on
-                   the next pane, and search with goole
+                   the next pane, search with goole
 
             Enter: https://www.google.com
                    start lynx, visit google
@@ -109,6 +111,5 @@ date: 2025-01-09 06:58:58 Z
 
         Open Image link with mouse click with host browser
         Doesn't work now.
-
 
 ```
