@@ -328,7 +328,7 @@ Type Name Content
 - Normal named registers
   `a b c d e ... z` or `A b C D E ... Z`
 
-- unnamed register `"`
+- Unnamed register `"`
   Any text delete (`d c s x`) or copy `y` saved in unnamed register, which could
   paste with `p`. `p` is same as `""p`. `""` reference unnamed register.
   `"ap` paste register `a`.
@@ -345,8 +345,7 @@ Type Name Content
 - Read only register : `. % : and #`
   Last insert context `.`
   Current file path `%`
-  Latest command `:`. Use `@:` to execute the command again to execute the
-  command again to execute the command again to execute the command again.
+  Latest command `:`. Use `@:` to execute the command again.
 
 - Expression register `=`
 
