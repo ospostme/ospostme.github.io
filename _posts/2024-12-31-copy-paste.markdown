@@ -99,14 +99,14 @@ for the `"*"` and `"+"` registers, respectively.
 
 # Tmux
 
-[Everything you need to know about Tmux copy and paste - Ubuntu](https://www.rushiagr.com/blog/2016/06/16/everything-you-need-to-know-about-tmux-copy-pasting-ubuntu/)
-`CTRL+b then ?` for tmux key help
+[Everything you need to know about Tmux copy and paste Ubuntu](https://www.rushiagr.com/blog/2016/06/16/everything-you-need-to-know-about-tmux-copy-pasting-ubuntu/)
+`tmux leader key then ?` for tmux key help
 
 Copying with tmux is more like copying in Vim, where it's best done with a
 keyboard rather than a mouse. This is done in tmux copy mode. Tmux has its
 own buffer for copying. By default, moving around in copy mode using arrows.
 
-## defaults
+## Defaults
 
 - 1. Enter ‘copy mode’ by pressing `CTRL`+`b, [`
 - 2. Use the arrow keys to go to the position from where you want to start
@@ -115,7 +115,7 @@ own buffer for copying. By default, moving around in copy mode using arrows.
      `CTRL+w` to copy into Tmux buffer.
 - 4. Press `CTRL+b, ]` to paste in a possibly different Tmux pane/window.
 
-## vim-bindings
+## Vim-bindings
 
 ### VI copy mode
 
