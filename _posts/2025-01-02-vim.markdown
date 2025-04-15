@@ -91,7 +91,7 @@ set inccommand=split        " Preview substitutions live with another small
 
 ## NVIM style options
 
-With plugin suit of LSP, auto format, format options will be over written, just
+With plugin suit of LSP, auto format, format options will be overwritten, just
 put here for reference.
 
 ```vim

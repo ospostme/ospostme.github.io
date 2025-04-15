@@ -122,7 +122,7 @@ own buffer for copying. By default, moving around in copy mode using arrows.
 To navigate your terminal history and to copy text, you need to switch to tmux
 copy mode. With following config you can move around using vim navigation keys.
 In this mode you can move around the terminal like vim.
-`setw -g mode-keys via`
+`setw -g mode-keys vi`
 
 ### VIM style Copy-Paste
 
