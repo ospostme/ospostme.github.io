@@ -702,20 +702,458 @@ virsh net-list
 virsh net-create
 virsh net-autostart xxx
 virsh net-dumpxml xxx
+virsh list
+virsh edit --domain xxx
+
+```
+
+# GPU
+
+> TBD GPU time slicing
+
+## KVM GPU passthrough
+
+GPU passthrough is a virtualization technique that allows a virtual machine (VM)
+to directly access and utilize a physical GPU on the host system, bypassing the
+host's operating system and drivers. This enables the VM to have nearly native
+GPU performance for tasks like gaming, video editing, or running applications
+that require significant GPU processing power.
+
+[GPU passthrough](https://documentation.suse.com/sles/15-SP6/html/SLES-all/app-gpu-passthru.html)
+[Ubuntu GPU passthrough](https://askubuntu.com/questions/1406888/ubuntu-22-04-gpu-passthrough-qemu)
+[GPU Passthrough for Beginners](https://github.com/Andrew-Willms/GPU-Passthrough-On-Ubuntu-22.04.2-for-Beginners)
+[Cloud](http://cloudpods.org/blog/nvidia-gpu-passthrough-record/)
+
+- Check that CPU virtualization is enabled `dmesg | grep VT-d`
+- Enable IOMMU `GRUB_CMDLINE_LINUX_DEFAULT="quiet splash intel_iommu=on"`
+- re-generate grub
+- Blacklist the Nouveau driver
+- Configure VFIO and isolate the GPU used for pass-through. vfio takeover GPU
+  device mangement
+- config KVM with vfio-pci devices
+- KVM guest GPU driver installation
+
+IOMMU refers to the chipset device that maps virtual addresses to physical addresses on your I/O devices (i.e. GPU, disk, etc.)
+
+In order to configure GPU passthrough you need to determine the PCI address(es)
+of your GPU and any other devices you wish to pass to your VM.
+
+```cmd
+
+ospost@rabbit:~/HW$ sudo lspci -nn | grep -i nvidia
+3b:00.0 3D controller [0302]: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] [10de:15f8] (rev a1)
+
+pci address => 3b:00.0
 
 ```
 
 ## vGPU
 
-# P100 vGPU support for Linux hosted KVM matrix
+GPU passthrough will bind entire GPU to VM, NVIDIA vGPU software creates virtual GPUs
+that can be shared across multiple virtual machines. To freely allocate GPU
+resources in KVM based k8s cluster, we have to use vGPU to split the physical
+GPU properly.
+
+## P100 vGPU support for Linux hosted KVM matrix
+
+[vGPU Grid Download](https://archive.org/download/NVIDIA-VGPU-Driver-Archive/NVIDIA-GRID-vGPU-Linux-KVM-Drivers/)
+
+| vGPU        | Release | Branch | vGPU Branch Type  | Latest Release | Release Date  | EOL Date      |
+| ----------- | ------- | ------ | ----------------- | -------------- | ------------- | ------------- |
+| NVIDIA vGPU | 16      | R535   | Long-Term Support | 16.9           | January 2025  | July 2026     |
+| NVIDIA vGPU | 15      | R525   | EOL Production    | 15.4           | October 2023  | December 2023 |
+| NVIDIA vGPU | 14      | R510   | EOL Production    | 14.4           | December 2022 | February 2023 |
+
+| vGPU | Linux vGPU Manager | Windows vGPU Manager | Linux Driver | Windows Driver | Release Date  |
+| ---- | ------------------ | -------------------- | ------------ | -------------- | ------------- |
+| 16.9 | 535.230.02         | 539.14               | 535.230.02   | 539.19         | January 2025  |
+| 16.8 | 535.216.01         | 538.95               | 535.216.01   | 538.95         | October 2024  |
+| 16.7 | 535.183.04         | 538.67               | 535.183.06   | 538.78         | July 2024     |
+| ...  | ...                | ...                  | ...          | ...            | ...           |
+| 16.2 | 535.129.03         | 537.70               | 535.129.03   | 537.70         | October 2023  |
+| 16.1 | 535.104.06         | 537.13               | 535.104.05   | 537.13         | August 2023   |
+| 16.0 | 535.54.06          | 536.22               | 535.54.03    | 536.25         | July 2023     |
+| 15.4 | 525.147.01         | 529.19               | 525.147.05   | 529.19         | October 2023  |
+| 15.3 | 525.125.03         | 529.06               | 525.125.06   | 529.11         | June 2023     |
+| 15.2 | 525.105.14         | 528.89               | 525.105.17   | 528.89         | March 2023    |
+| 15.1 | 525.85.07          | 528.24               | 525.85.05    | 528.24         | January 2023  |
+| 15.0 | 525.60.12          | 527.41               | 525.60.13    | 527.41         | December 2022 |
+| 14.4 | 510.108.03         | NA                   | 510.108.03   | 514.08         | December 2022 |
 
 ## ubuntu kernel/vGPU driver version
 
-## License Server
+P100 vGPU manger available in R510/R525/R535, as the error of "gpl-only symbol"
+kernel error during install, choose the oldest one.
+
+> TBD use the latest 16.9 vGPU manager, recompile kernel should resolve the
+> 'qpl-only' error
+
+## KVM vGPU setting
+
+[vGPU manager](https://cloud-atlas.readthedocs.io/zh-cn/latest/kvm/vgpu/install_vgpu_manager.html)
+[Ubuntu vGPU config](https://docs.nvidia.com/vgpu/latest/grid-vgpu-user-guide/index.html#ubuntu-install-configure-vgpu)
+
+- Install vGPU Manager for Linux KVM on hypervisor host
+- Verify kernel module
+- Getting domain and bus, device, function of physical GPU
+- Getting full-identifier of GPU
+- check VGPU mode
+- check supported mdev types
+- Create vGPU device instance
+- Create vGPU configuration, add in corresponding VM
+
+```cmd
+
+ospost@rabbit:~/workspace/AI/nvidia_vGPU_510/Host_Drivers$ chmod +x ./NVIDIA-Linux-x86_64-510.108.03-vgpu-kvm.run
+ospost@rabbit:~/workspace/AI/nvidia_vGPU_510/Host_Drivers$ sudo bash ./NVIDIA-Linux-x86_64-510.108.03-vgpu-kvm.run
+
+
+ospost@rabbit:~/workspace/AI/nvidia_vGPU_510/Host_Drivers$ lsmod | grep vfio
+nvidia_vgpu_vfio       57344  26
+mdev                   28672  3 nvidia_vgpu_vfio
+
+
+ospost@rabbit:~/workspace/AI/nvidia_vGPU_510/Host_Drivers$ sudo lspci | grep -i nvidia
+3b:00.0 3D controller: NVIDIA Corporation GP100GL [Tesla P100 PCIe 16GB] (rev a1)
+ospost@rabbit:~/workspace/AI/nvidia_vGPU_510/Host_Drivers$ lspci -vvvnnn -s 3b:00.0  | grep -i kernel
+        Kernel driver in use: nvidia
+        Kernel modules: nvidiafb, nvidia_vgpu_vfio, nvidia
+
+virsh nodedev-list --cap pci | grep
+
+
+ospost@rabbit:~/workspace/AI/nvidia_vGPU_510/Host_Drivers$ virsh nodedev-list --cap pci | grep 3b_00_0
+pci_0000_3b_00_0
+
+
+ospost@rabbit:~/workspace/AI/nvidia_vGPU_510/Host_Drivers$ virsh nodedev-dumpxml pci_0000_3b_00_0 | egrep 'domain|bus|slot|function'
+    <domain>0</domain>
+    <bus>59</bus>
+    <slot>0</slot>
+    <function>0</function>
+      <address domain='0x0000' bus='0x3b' slot='0x00' function='0x0'/>
+      <address domain='0x0000' bus='0x3a' slot='0x00' function='0x0'/>
+
+
+ospost@rabbit:~/workspace/AI/nvidia_vGPU_510/Host_Drivers$ nvidia-smi -q | grep VGPU
+        Virtualization Mode               : Host VGPU
+        Host VGPU Mode                    : Non SR-IOV
+
+
+
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types$ mdevctl types
+0000:3b:00.0
+  nvidia-160
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-2B
+    Description: num_heads=4, frl_config=45, framebuffer=2048M, max_resolution=5120x2880, max_instance=8
+  nvidia-211
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-2B4
+    Description: num_heads=4, frl_config=45, framebuffer=2048M, max_resolution=5120x2880, max_instance=8
+  nvidia-244
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-1B4
+    Description: num_heads=4, frl_config=45, framebuffer=1024M, max_resolution=5120x2880, max_instance=16
+  nvidia-293
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-4C
+    Description: num_heads=1, frl_config=60, framebuffer=4096M, max_resolution=4096x2160, max_instance=4
+  nvidia-294
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-8C
+    Description: num_heads=1, frl_config=60, framebuffer=8192M, max_resolution=4096x2160, max_instance=2
+  nvidia-295
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-16C
+    Description: num_heads=1, frl_config=60, framebuffer=16384M, max_resolution=4096x2160, max_instance=1
+  nvidia-83
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-1Q
+    Description: num_heads=4, frl_config=60, framebuffer=1024M, max_resolution=5120x2880, max_instance=16
+  nvidia-84
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-2Q
+    Description: num_heads=4, frl_config=60, framebuffer=2048M, max_resolution=7680x4320, max_instance=8
+  nvidia-85
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-4Q
+    Description: num_heads=4, frl_config=60, framebuffer=4096M, max_resolution=7680x4320, max_instance=4
+  nvidia-86
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-8Q
+    Description: num_heads=4, frl_config=60, framebuffer=8192M, max_resolution=7680x4320, max_instance=2
+  nvidia-87
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-16Q
+    Description: num_heads=4, frl_config=60, framebuffer=16384M, max_resolution=7680x4320, max_instance=1
+  nvidia-88
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-1A
+    Description: num_heads=1, frl_config=60, framebuffer=1024M, max_resolution=1280x1024, max_instance=16
+  nvidia-89
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-2A
+    Description: num_heads=1, frl_config=60, framebuffer=2048M, max_resolution=1280x1024, max_instance=8
+  nvidia-90
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-4A
+    Description: num_heads=1, frl_config=60, framebuffer=4096M, max_resolution=1280x1024, max_instance=4
+  nvidia-91
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-8A
+    Description: num_heads=1, frl_config=60, framebuffer=8192M, max_resolution=1280x1024, max_instance=2
+  nvidia-92
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-16A
+    Description: num_heads=1, frl_config=60, framebuffer=16384M, max_resolution=1280x1024, max_instance=1
+  nvidia-93
+    Available instances: 0
+    Device API: vfio-pci
+    Name: GRID P100-1B
+    Description: num_heads=4, frl_config=45, framebuffer=1024M, max_resolution=5120x2880, max_instance=16
+
+
+UUID=`uuidgen`
+echo "$UUID" > nvidia-86/create
+UUID=`uuidgen`
+echo "$UUID" > nvidia-86/create
+
+
+
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ ls -lh /sys/bus/mdev/devices/
+total 0
+lrwxrwxrwx 1 root root 0 Apr 15 01:39 3131f5fd-7c04-4a61-92c1-0c37f9547b6b -> ../../../devices/pci0000:3a/0000:3a:00.0/0000:3b:00.0/3131f5fd-7c04-4a61-92c1-0c37f9547b6b
+lrwxrwxrwx 1 root root 0 Apr 15 01:39 e55bf865-6983-4d53-967f-51e8a3bb0f57 -> ../../../devices/pci0000:3a/0000:3a:00.0/0000:3b:00.0/e55bf865-6983-4d53-967f-51e8a3bb0f57
+
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ mdevctl list
+e55bf865-6983-4d53-967f-51e8a3bb0f57 0000:3b:00.0 nvidia-294 (defined)
+3131f5fd-7c04-4a61-92c1-0c37f9547b6b 0000:3b:00.0 nvidia-294 (defined)
+
+
+
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ virsh nodedev-dumpxml pci_0000_3b_00_0
+<device>
+  <name>pci_0000_3b_00_0</name>
+  <path>/sys/devices/pci0000:3a/0000:3a:00.0/0000:3b:00.0</path>
+  <parent>pci_0000_3a_00_0</parent>
+  <driver>
+    <name>nvidia</name>
+  </driver>
+  <capability type='pci'>
+    <class>0x030200</class>
+    <domain>0</domain>
+    <bus>59</bus>
+    <slot>0</slot>
+    <function>0</function>
+    <product id='0x15f8'>GP100GL [Tesla P100 PCIe 16GB]</product>
+    <vendor id='0x10de'>NVIDIA Corporation</vendor>
+    <capability type='mdev_types'>
+      <type id='nvidia-88'>
+        <name>GRID P100-1A</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-211'>
+        <name>GRID P100-2B4</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-86'>
+        <name>GRID P100-8Q</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-84'>
+        <name>GRID P100-2Q</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-294'>
+        <name>GRID P100-8C</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-92'>
+        <name>GRID P100-16A</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-244'>
+        <name>GRID P100-1B4</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-90'>
+        <name>GRID P100-4A</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-89'>
+        <name>GRID P100-2A</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-87'>
+        <name>GRID P100-16Q</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-85'>
+        <name>GRID P100-4Q</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-295'>
+        <name>GRID P100-16C</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-93'>
+        <name>GRID P100-1B</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-83'>
+        <name>GRID P100-1Q</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-293'>
+        <name>GRID P100-4C</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-160'>
+        <name>GRID P100-2B</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+      <type id='nvidia-91'>
+        <name>GRID P100-8A</name>
+        <deviceAPI>vfio-pci</deviceAPI>
+        <availableInstances>0</availableInstances>
+      </type>
+    </capability>
+    <iommuGroup number='35'>
+      <address domain='0x0000' bus='0x3b' slot='0x00' function='0x0'/>
+      <address domain='0x0000' bus='0x3a' slot='0x00' function='0x0'/>
+    </iommuGroup>
+    <numa node='0'/>
+    <pci-express>
+      <link validity='cap' port='0' speed='8' width='16'/>
+      <link validity='sta' speed='8' width='16'/>
+    </pci-express>
+  </capability>
+</device>
+
+
+
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ cat ~/HW/vgpu1
+<device>
+    <parent>pci_0000_3b_00_0</parent>
+    <capability type="mdev">
+        <type id="nvidia-294"/>
+        <uuid>e55bf865-6983-4d53-967f-51e8a3bb0f57</uuid>
+    </capability>
+</device>
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ cat ~/HW/vgpu2
+<device>
+    <parent>pci_0000_3b_00_0</parent>
+    <capability type="mdev">
+        <type id="nvidia-294"/>
+        <uuid>3131f5fd-7c04-4a61-92c1-0c37f9547b6b</uuid>
+    </capability>
+</device>
+
+
+
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ virsh nodedev-define ~/HW/vgpu1
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ virsh nodedev-define ~/HW/vgpu2
+
+
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ virsh nodedev-list --cap mdev
+mdev_3131f5fd_7c04_4a61_92c1_0c37f9547b6b_0000_3b_00_0
+mdev_e55bf865_6983_4d53_967f_51e8a3bb0f57_0000_3b_00_0
+
+
+
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ cat ~/HW/vgpu1_virt
+    <hostdev mode='subsystem' type='mdev' managed='no' model='vfio-pci' display='off'>
+      <source>
+        <address uuid='e55bf865-6983-4d53-967f-51e8a3bb0f57'/>
+      </source>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
+    </hostdev>
+
+ospost@rabbit:/sys/class/mdev_bus/0000:3b:00.0/mdev_supported_types/nvidia-86$ cat ~/HW/vgpu2_virt
+    <hostdev mode='subsystem' type='mdev' managed='no' model='vfio-pci' display='off'>
+      <source>
+        <address uuid='3131f5fd-7c04-4a61-92c1-0c37f9547b6b'/>
+      </source>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
+    </hostdev>
+
+
+```
+
+## vGPU License Server
+
+[vGPU License Server](https://github.com/fenghan0430/How-to-use-vGPU)
+[Nvidia DLS License Server](https://github.com/GreenDamTan/fastapi-dls_mirror)
+
+vGPU Software Compatibility Matrix:
+
+550.127.05
+550.90.07
+550.90.07
+550.54.15
+550.54.14
+535.216.01
+535.183.06
+535.183.01
+535.161.08
+535.161.07
+535.154.05
+535.129.03
+535.104.05
+535.54.03
+525.147.05
+510.108.03
 
 # Quick Reference for basic tools involved
 
-## Vagrant ## kubespary ## docker ## containerd ## Proxy ## NFS ## k8s nfs csi driver ## nvida device plugin
+## Vagrant
+
+## kubespary
+
+## docker
+
+## containerd
+
+## Proxy
+
+## NFS
+
+## k8s nfs csi driver
+
+## nvida device plugin
 
 ## helm
 
