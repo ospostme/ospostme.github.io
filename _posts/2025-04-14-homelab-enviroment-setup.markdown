@@ -1692,7 +1692,7 @@ juju add-model kubeflow
 juju deploy kubeflow --trust --channel=1.9/stable
 juju deploy mlflow --channel=2.15/stable --trust
 juju config dex-auth static-username=ospost
-juju config dex-auth static-password=ospost
+juju config dex-auth static-password=
 juju deploy resource-dispatcher --channel 2.0/stable --trust
 
 juju integrate mlflow-server:pod-defaults resource-dispatcher:pod-defaults
@@ -1779,7 +1779,6 @@ deploykf generate     --source-version "0.1.5"     --values ./sample-values-0.1.
 ut-dir ./GENERATOR_OUTPUT
 
 kubectl apply --filename GENERATOR_OUTPUT/app-of-apps.yaml
-
 
 ```
 
