@@ -1,3 +1,8 @@
+---
+title: Homelab Enviroment Setup
+date: 2025-04-14 00:00:00 Z
+---
+
 k--
 title: Homelab Enviroment Setup
 date: 2025-04-14 00:00:00 Z
