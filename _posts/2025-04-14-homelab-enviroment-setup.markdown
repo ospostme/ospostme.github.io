@@ -1,6 +1,7 @@
----
+k--
 title: Homelab Enviroment Setup
 date: 2025-04-14 00:00:00 Z
+
 ---
 
 # Hardware List
@@ -1779,6 +1780,7 @@ deploykf generate     --source-version "0.1.5"     --values ./sample-values-0.1.
 ut-dir ./GENERATOR_OUTPUT
 
 kubectl apply --filename GENERATOR_OUTPUT/app-of-apps.yaml
+
 
 ```
 
