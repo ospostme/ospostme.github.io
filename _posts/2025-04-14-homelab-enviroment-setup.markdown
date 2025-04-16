@@ -1146,7 +1146,198 @@ vGPU Software Compatibility Matrix:
 
 ## Vagrant
 
+Vagrant is a HashiCorp tool that simplifies creating and managing developer
+environments. It bridges the gap between the host machine (your local computer)
+and the guest machine (the virtual environment) to ensure seamless integration.
+By using configuration files called Vagrantfile, Vagrant automates the setup and
+configuration process, enabling teams to focus on development rather than
+environment management.
+
+- Vagrant ensures consistent and reproducible environments
+- Vagrant environments are portable and shareable, letting teams replicate setups
+  efficiently across projects and infrastructure
+- Vagrant works with providers like VirtualBox, VMware, Docker, and more, giving
+  you the flexibility to tailor environments to your infrastructure and application
+  requirements.
+- Configure port forwarding lets you access services running on the guest machine
+  directly from the host machine.
+
+> Forward ports for Terramino (8081 for frontend, 8080 for backend)
+> config.vm.network "forwarded_port", guest: 8080, host: 8080
+> config.vm.network "forwarded_port", guest: 8081, host: 8081
+
+- folder synchronization/NFS mount
+- multi-machine environments for cluster
+
+### Development environment setup/Provision
+
+```cmd
+
+ospost@rabbit:~/workspace/k8s/mini$ vagrant up
+ospost@rabbit:~/workspace/k8s/mini$ vagrant up --no-provision brother sister
+ospost@rabbit:~/workspace/k8s/mini$ vagrant halt
+ospost@rabbit:~/workspace/k8s/mini$ vagrant destroy
+
+ospost@rabbit:~/workspace/k8s/mini$ vagrant status
+[fog][WARNING] Unrecognized arguments: libvirt_ip_command
+[fog][WARNING] Unrecognized arguments: libvirt_ip_command
+[fog][WARNING] Unrecognized arguments: libvirt_ip_command
+[fog][WARNING] Unrecognized arguments: libvirt_ip_command
+[fog][WARNING] Unrecognized arguments: libvirt_ip_command
+Current machine states:
+
+master1                   running (libvirt)
+master2                   running (libvirt)
+master3                   running (libvirt)
+brother                   running (libvirt)
+sister                    running (libvirt)
+
+This environment represents multiple VMs. The VMs are all listed
+above with their current state. For more information about a specific
+VM, run `vagrant status NAME`.
+ospost@rabbit:~/workspace/k8s/mini$ vagrant ssh master
+The machine with the name 'master' was not found configured for
+this Vagrant environment.
+ospost@rabbit:~/workspace/k8s/mini$ vagrant ssh master1
+[fog][WARNING] Unrecognized arguments: libvirt_ip_command
+
+Last login: Tue Apr 15 03:02:06 2025 from 192.168.121.1
+vagrant@node1:~$
+
+
+ospost@rabbit:~/workspace/k8s/mini$ ls
+common_provision.sh  docker_toolkit.sh  network  test  Vagrantfile  vGPU_cuda_toolkit_cudnn.sh
+ospost@rabbit:~/workspace/k8s/mini$ cat Vagrantfile
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#Script for creating kvm (Kernel native) vm's for kubernetes
+#best be doing this on a fresh box lest things get cattywampus
+#need a bridge set up under br0
+
+#Net work prefix in which a single digit is appended
+#ex 192.168.1.5 will have a master at 192.168.1.50 and workers starting from 192.168.1.51
+#CONTROL_NETWORK_PREFIX="192.168.124.20"
+#COMPUTE_NETWORK_PREFIX="192.168.124.21"
+
+#make sure libvirt, qemu, kvm etc are installed
+#make sure other hypervisers such as virtualbox are not
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+IMAGE_NAME = "generic/ubuntu2204"
+
+#right now NUM_NODES must be under 9
+MASTER_NODES = 3
+#WORKER_NODES = 3
+
+Vagrant.configure("2") do |config|
+    config.ssh.keys_only = false
+    config.vm.synced_folder "./network", "/network"
+    config.vm.provider :libvirt do |libvirt|
+        libvirt.cpus = 8
+        libvirt.memory = 16384
+        libvirt.driver = "kvm"
+    #config.vm.synced_folder "/mnt/slowcache/NFS/vagrant/", "/home/vagrant/workspace",
+    #    type: "nfs",
+    #    nfs_version: 4.1,
+    #    nfs_udp: false,
+    #    mount_options: ['actimeo=0']
+    #    #linux__nfs_options: ['rw','no_subtree_check','all_squash','sync','anonuid=65534','anongid=65534']
+    #config.nfs.map_uid=65534
+    #config.nfs.map_gid=65534
+    end
+
+    (1..MASTER_NODES).each do |i|
+        config.vm.define "master#{i}" do |master|
+            master.vm.box = IMAGE_NAME
+                master.vm.network :public_network,
+                :dev => "ovsbr0",
+                :ovs => true
+            master.vm.hostname = "master#{i}"
+            master.vm.provision "shell", inline: <<-SHELL
+                sudo cp /network/m#{i}-50-vagrant.yaml /etc/netplan/50-vagrant.yaml
+                sudo netplan apply
+            SHELL
+        end
+    end
+
+
+
+    config.vm.define "brother" do |brother|
+        brother.vm.provider :libvirt do |libvirt|
+            libvirt.cpus = 16
+            libvirt.memory = 131072
+            libvirt.driver = "kvm"
+        end
+        brother.vm.box = IMAGE_NAME
+        brother.vm.network :public_network,
+            :dev => "ovsbr0",
+            :ovs => true
+        brother.vm.hostname = "brother"
+        brother.vm.provision "shell", inline: <<-SHELL
+            sudo cp /network/n1-50-vagrant.yaml /etc/netplan/50-vagrant.yaml
+            sudo netplan apply
+        SHELL
+
+        brother.vm.provision "shell", path: "vGPU_cuda_toolkit_cudnn.sh"
+        brother.vm.provision "shell", path: "docker_toolkit.sh"
+
+    end
+
+    config.vm.define "sister" do |sister|
+        sister.vm.provider :libvirt do |libvirt|
+            libvirt.cpus = 16
+            libvirt.memory = 65536
+            libvirt.driver = "kvm"
+        end
+        sister.vm.box = IMAGE_NAME
+        sister.vm.network :public_network,
+            :dev => "ovsbr0",
+            :ovs => true
+        sister.vm.hostname = "sister"
+        sister.vm.provision "shell", inline: <<-SHELL
+            sudo cp /network/n2-50-vagrant.yaml /etc/netplan/50-vagrant.yaml
+            sudo netplan apply
+        SHELL
+        sister.vm.provision "shell", path: "vGPU_cuda_toolkit_cudnn.sh"
+        sister.vm.provision "shell", path: "docker_toolkit.sh"
+
+    end
+
+    config.vm.provision "shell", path: "common_provision.sh"
+end
+
+```
+
 ## kubespary
+
+K8S deploy tools, using Ansible as its substrate for provisioning and orchestration
+
+- python environment and Ansible install
+- cluster hosts config
+- group variables refine in all/all.yml, k8s_cluster/k8s-cluster.yml
+  k8s_cluster/addons.yml
+- install with Ansible playbook
+
+```cmd
+
+ospost $ conda activate fuck
+(fuck) ospost $
+Wed Apr 16 00:07:50 CST 2025 ospost@M2.local:/Users/ospost/workspace/k8s-kubeflow/1.28.14
+(fuck) ospost $ ls
+cert             csi-driver-nfs   image-keeper     juju             kubespray-venv   nfs-csi-config   proxy_config.yml
+command          harbor.tar.gz    ingress          kubespray        metallb          nvidia           temp
+Wed Apr 16 00:07:51 CST 2025 ospost@M2.local:/Users/ospost/workspace/k8s-kubeflow/1.28.14
+(fuck) ospost $ source kubespray-venv/bin/activate
+Wed Apr 16 00:08:03 CST 2025 ospost@M2.local:/Users/ospost/workspace/k8s-kubeflow/1.28.14
+(kubespray-venv) (fuck) ospost $ ls
+cert             csi-driver-nfs   image-keeper     juju             kubespray-venv   nfs-csi-config   proxy_config.yml
+command          harbor.tar.gz    ingress          kubespray        metallb          nvidia           temp
+Wed Apr 16 00:08:14 CST 2025 ospost@M2.local:/Users/ospost/workspace/k8s-kubeflow/1.28.14
+(kubespray-venv) (fuck) ospost $ cd kubespray
+Wed Apr 16 00:08:17 CST 2025 ospost@M2.local:/Users/ospost/workspace/k8s-kubeflow/1.28.14/kubespray
+(kubespray-venv) (fuck) ospost(release-2.24) $ ansible-playbook -i inventory/mini/hosts.yaml --become --become-user=root cluster.yml
+
+```
 
 ## docker
 
@@ -1154,42 +1345,512 @@ vGPU Software Compatibility Matrix:
 
 ## Proxy
 
+```text
+
+                            ┌─────┐ ┌──────┐ ┌──────┐
+                            │ Git │ │ porn │ │google│
+                            └─────┘ └──────┘ └──────┘
+                             ▲         ▲         ▲
+                 ┌───────────┴─────────┴─────────┘
+                 │                ▲             ▲
+               ┌─┴──────┐      ┌──┴──────┐     ┌┴─────────┐
+               │ server │      │ server2 │     │  server3 │
+               └────────┘      └─────────┘     └──────────┘
+                ▲   ▲             ▲               ▲
+    ┌───────────┼───┼───────────┐ │               │
+    │cloudflare │   │           │ │    ┌──────────┘
+    │      ┌────┴─┐ │           │ │    │
+    │ dns  │ proxy│ │           │ │    │
+    │      └──────┘ │           │ │    │
+    │         ▲  ┌────────────┐ │ │    │
+    │         │  │ page worker│ │ │    │
+    │         │  │ docker.io  │ │ │    │
+    │         │  │ quay.io    │ │ │    │
+    │         │  │  ...       │ │ │    │
+    │         │  └────────────┘ │ │    │
+    │         │     ▲           │ │    │
+    │         │     │           │ │    │
+    └─────────┼─────┼───────────┘ │    │
+              │     │             │    │
+              │     │             │    │
+              │     │             │    │
+            ┌──────────────────────────────┐
+            │      KVM host proxy client   │
+            │                              │
+            │          balancer            │
+            │                              │
+            │          haproxy             │
+            │            ▲                 │
+            └────────────┼─────────────────┘
+                         │
+        ┌───────────────┐│
+        │  ┌────────────│─┐
+        │  │ ┌──────────│───┐
+        │  │ │ Guest VMs│ │ │
+        └───────────────┘ │ │
+           └─│────────────┘ │
+             └──────────────┘
+
+
+```
+
 ## NFS
+
+> no_root_squash:
+>
+> > By default, NFS shares change the root user to the nfsnobody
+> > user, an unprivileged user account. In this way, all root-created files are
+> > owned by nfsnobody, which prevents uploading of programs with the setuid bit
+> > set. If no_root_squash is used, remote root users are able to change any file
+> > on the shared file system and leave trojaned applications for other users to
+> > inadvertently execute.
+>
+> all_squash:
+>
+> > all user mapping to nobody:nogroup
+>
+> some container by default will encounter privilege problem with NFS volumes,
+> for example mysql may not work with all_squash as the init script want to change
+> password file to root only, while jupiter-torch-full init script doesn't work
+> with root_squash NFS volume.
+>
+> k8s fsGroup may help, need to change pod yaml file
+
+```text
+
+ospost@rabbit:~$ cat /etc/exports
+# /etc/exports: the access control list for filesystems which may be exported
+#		to NFS clients.  See exports(5).
+#
+# Example for NFSv2 and NFSv3:
+# /srv/homes       hostname1(rw,sync,no_subtree_check) hostname2(ro,sync,no_subtree_check)
+#
+# Example for NFSv4:
+# /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
+# /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
+#
+
+#/mnt/slowcache/NFS    	  	gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
+#/mnt/slowcache/NFS/K8S        	gss/krb5i(rw,sync,no_subtree_check)
+
+#/mnt/slowcache/NFS/K8S        	*(rw,sync,no_subtree_check,no_root_squash)
+/mnt/slowcache/NFS/K8S        	*(rw,sync,no_subtree_check,no_root_squash)
+/home/NFS/K8S        		*(rw,sync,no_subtree_check,no_root_squash)
+/mnt/slowcache/NFS/k8snobody  	*(rw,sync,all_squash,anonuid=65534,anongid=65534,no_subtree_check)
+/home/NFS/k8snobody  		*(rw,sync,all_squash,anonuid=65534,anongid=65534,no_subtree_check)
+/mnt/slowcache/NFS/vagrant    	*(rw,sync,all_squash,anonuid=65534,anongid=65534,no_subtree_check)
+
+```
 
 ## k8s nfs csi driver
 
+Requires existing and already configured NFSv3 or NFSv4 server, it supports
+dynamic provisioning of Persistent Volumes via Persistent Volume Claims by
+creating a new sub directory under NFS server
+
+```
+curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.10.0/deploy/install-driver.sh | bash -s v4.10.0
+
+ospost $ cat fast-storageclass-nfs.yaml
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-nfs-csi-no-squash
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: nfs.csi.k8s.io
+parameters:
+  #server: nfs-server.default.svc.cluster.local
+  server: 192.168.121.1
+  share: /home/NFS/K8S
+  # csi.storage.k8s.io/provisioner-secret is only needed for providing mountOptions in DeleteVolume
+  # csi.storage.k8s.io/provisioner-secret-name: "mount-options"
+  # csi.storage.k8s.io/provisioner-secret-namespace: "default"
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+mountOptions:
+  - nfsvers=4.1
+Wed Apr 16 00:15:17 CST 2025 ospost@M2.local:/Users/ospost/workspace/k8s-kubeflow/1.28.14/nfs-csi-config
+ospost $ cat fast-storageclass-nfs-nobody.yaml
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-nfs-csi-squash
+  #  annotations:
+  #  storageclass.kubernetes.io/is-default-class: "true"
+provisioner: nfs.csi.k8s.io
+parameters:
+  #server: nfs-server.default.svc.cluster.local
+  server: 192.168.121.1
+  share: /home/NFS/k8snobody
+  # csi.storage.k8s.io/provisioner-secret is only needed for providing mountOptions in DeleteVolume
+  # csi.storage.k8s.io/provisioner-secret-name: "mount-options"
+  # csi.storage.k8s.io/provisioner-secret-namespace: "default"
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+mountOptions:
+  - nfsvers=4.1
+Wed Apr 16 00:15:23 CST 2025 ospost@M2.local:/Users/ospost/workspace/k8s-kubeflow/1.28.14/nfs-csi-config
+ospost $ cat storageclass-nfs
+storageclass-nfs-nobody.yaml  storageclass-nfs.yaml
+ospost $ cat storageclass-nfs.yaml
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi-no-squash
+    #annotations:
+    #storageclass.kubernetes.io/is-default-class: "true"
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: nfs-server.default.svc.cluster.local
+  server: 192.168.121.1
+  share: /mnt/slowcache/NFS/K8S
+  # csi.storage.k8s.io/provisioner-secret is only needed for providing mountOptions in DeleteVolume
+  # csi.storage.k8s.io/provisioner-secret-name: "mount-options"
+  # csi.storage.k8s.io/provisioner-secret-namespace: "default"
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+mountOptions:
+  - nfsvers=4.1
+Wed Apr 16 00:15:40 CST 2025 ospost@M2.local:/Users/ospost/workspace/k8s-kubeflow/1.28.14/nfs-csi-config
+ospost $ cat storageclass-nfs-nobody.yaml
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi-squash
+  #  annotations:
+  #  storageclass.kubernetes.io/is-default-class: "true"
+provisioner: nfs.csi.k8s.io
+parameters:
+  #server: nfs-server.default.svc.cluster.local
+  server: 192.168.121.1
+  share: /mnt/slowcache/NFS/k8snobody
+  # csi.storage.k8s.io/provisioner-secret is only needed for providing mountOptions in DeleteVolume
+  # csi.storage.k8s.io/provisioner-secret-name: "mount-options"
+  # csi.storage.k8s.io/provisioner-secret-namespace: "default"
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+mountOptions:
+  - nfsvers=4.1
+
+ospost $ kubectl apply -f fast-storageclass-nfs.yaml
+ospost $ kubectl apply -f fast-storageclass-nfs-nobody.yaml
+ospost $ kubectl apply -f storageclass-nfs.yaml
+ospost $ kubectl apply -f storageclass-nfs-nobody.yaml
+
+ospost $ kubectl get sc
+NAME                               PROVISIONER      RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+fast-nfs-csi-no-squash (default)   nfs.csi.k8s.io   Delete          Immediate           true                   3d11h
+fast-nfs-csi-squash                nfs.csi.k8s.io   Delete          Immediate           true                   3d11h
+nfs-csi-no-squash                  nfs.csi.k8s.io   Delete          Immediate           true                   3d11h
+nfs-csi-squash                     nfs.csi.k8s.io   Delete          Immediate           true                   3d11h
+```
+
 ## nvida device plugin
+
+The NVIDIA device plugin for Kubernetes is a Daemonset that allows you to automatically:
+
+- Expose the number of GPUs on each nodes of your cluster
+- Keep track of the health of your GPUs
+- Run GPU enabled containers in your Kubernetes cluster.
+
+> gpu node need to set default runtime as nvidia
+>
+> > sudo nvidia-ctk runtime configure --runtime=docker --set-as-default
+> > sudo systemctl restart docker
+> >
+> > sudo nvidia-ctk runtime configure --runtime=containerd --set-as-default
+> > sudo systemctl restart containerd.service
+
+```cmd
+ospost $ cat nvidia-device-plugin.yml
+# Copyright (c) 2019, NVIDIA CORPORATION.  All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvidia-device-plugin-daemonset
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: nvidia-device-plugin-ds
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: nvidia-device-plugin-ds
+    spec:
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+      # Mark this pod as a critical add-on; when enabled, the critical add-on
+      # scheduler reserves resources for critical add-on pods so that they can
+      # be rescheduled after a failure.
+      # See https://kubernetes.io/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/
+      priorityClassName: "system-node-critical"
+      containers:
+      - image: nvcr.io/nvidia/k8s-device-plugin:v0.17.1
+        name: nvidia-device-plugin-ctr
+        env:
+          - name: FAIL_ON_INIT_ERROR
+            value: "false"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        volumeMounts:
+        - name: device-plugin
+          mountPath: /var/lib/kubelet/device-plugins
+      volumes:
+      - name: device-plugin
+        hostPath:
+          path: /var/lib/kubelet/device-plugins
+Wed Apr 16 00:19:09 CST 2025 ospost@M2.local:/Users/ospost/workspace/k8s-kubeflow/1.28.14/nvidia
+ospost $ kubectl apply -f nvidia-device-plugin.yml
+
+```
 
 ## helm
 
-## charm
+Helm helps you manage Kubernetes applications — Helm Charts help you define,
+install, and upgrade even the most complex Kubernetes application.
+
+kubspary 2.27 with k8s 1.31 works fine with device plugin installed by helm
+BUT kubespary 2.24 with k8s 1.28 only works with static device plugin daemonset.
+
+```cmd
+helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
+helm repo list
+helm repo update; helm search repo nvdp --devel
+
+kubectl apply -f nfs-csi.yaml
+kubectl delete -f pvc-nfs-csi-dynamic.yaml
+kubectl apply -f pvc-nfs-csi-dynamic.yaml
+kubectl get sc
+
+helm upgrade -i nvdp nvdp/nvidia-device-plugin   --namespace nvidia-device-plugin   --create-namespace   --version 0.17.1 --set runtimeClassName="nvidia" --set fail-on-init-error=false  --set deviceDiscoveryStrategy=nvml --set gfd.enabled=true
+
+```
+
+## charts
+
+A chart is a collection of files that describe a related set of Kubernetes
+resources. A single chart might be used to deploy something simple, like a
+memcached pod, or something complex, like a full web app stack with HTTP servers,
+databases, caches, and so on.
+
+Charts are created as files laid out in a particular directory tree. They can be
+packaged into versioned archives to be deployed.
 
 ## kubeflow
 
+Kubeflow makes artificial intelligence and machine learning simple, portable,
+and scalable. We are an ecosystem of Kubernetes based components for each stage
+in the AI/ML Lifecycle
+
+The Kubeflow Platform refers to the full suite of Kubeflow components bundled
+together with additional integration and management tools. Using Kubeflow as a
+platform means deploying a comprehensive ML toolkit for the entire ML lifecycle.
+
 ## kubeflow manifest
+
+The Kubeflow manifests are a collection of community maintained manifests to
+install Kubeflow in popular Kubernetes clusters
 
 ## charmed kubeflow
 
+Canonical distributions of Kubeflow
+
+```cmd
+
+juju add-k8s mini
+juju bootstrap mini
+juju add-model kubeflow
+juju deploy kubeflow --trust --channel=1.9/stable
+juju deploy mlflow --channel=2.15/stable --trust
+juju config dex-auth static-username=ospost
+juju config dex-auth static-password=ospost
+juju deploy resource-dispatcher --channel 2.0/stable --trust
+
+juju integrate mlflow-server:pod-defaults resource-dispatcher:pod-defaults
+juju integrate mlflow-minio:object-storage kserve-controller:object-storage
+juju integrate kserve-controller:service-accounts resource-dispatcher:service-accounts
+juju integrate kserve-controller:secrets resource-dispatcher:secrets
+juju integrate mlflow-server:ingress istio-pilot:ingress
+juju integrate mlflow-server:dashboard-links kubeflow-dashboard:links
+
+```
+
+## Argo CD (Continuous Delivery)
+
+Argo CD is an extremely widely-used tool that helps you programmatically manage
+the applications deployed on a Kubernetes cluster. Argo CD is a declarative,
+GitOps continuous delivery tool for Kubernetes.
+
+Argo CD is implemented as a Kubernetes controller which continuously monitors
+running applications and compares the current, live state against the desired
+target state (as specified in the Git repo)
+
+- Application
+  The main config for Argo CD is the Application, a Kubernetes custom resource
+  that specifies Kubernetes manifests for Argo CD to deploy and manage (typically
+  from a git repository).
+
+> Argo/Argo CD could play an very important role in development Cycle
+> worth to put effort on it.
+
 ## deployKF
+
+> compare to charmed kubeflow, deployDF document is much better
+
+deployKF provides centralized configs, seamless in-place upgrades, and the
+flexibility to run on any Kubernetes cluster, including self-hosted and cloud services.
+
+deployKF requires ArgoCD for managing the platform. With integration with git.
+
+```text
+
+                               ┌────────────────────┐ @2 commit manifest to git
+                               │   Git repository   │ ◄────────────────┐
+                               └────────────────────┘                  │
+                                 ▲                                     │
+                                 │                                     │
+                                 │ @3 get manifest from git            │
+                                 │                                     │
+     ┌───────────────────────────┼───┐                                 │
+     │                  ┌────────┴┐  │                                 │
+     │ k8s cluster      │ ArgoCD  │  │                                 │
+     │                  └─────────┘  │                                 │
+     └───────────────────────────────┘                                 │
+                        ▲▲ ▲                                           │
+        ┌───────────────┘│ │                 ┌──────────────┐          │
+        │   ┌────────────┘ │                 │deployKF value│          │
+        │   │              │                 └──────────────┘          │
+        │   │              │                  │ @1 create manifests    │
+        │   │              │                  │ from deployKF values   │
+        │   │              │                  ▼                        │
+        │   │              │                 ┌──────────────┐          │
+                                             │ KF manifests │ ─────────┘
+                                             └──────────────┘
+        @4 retrieve the applications
+           compoments described in the manifests
+```
+
+```cmd
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+kubectl port-forward svc/argocd-server -n argocd 8081:443
+argocd admin initial-password -n argocd
+DKF_CLI_VERSION="0.1.2"
+DKF_CLI_ARCH=$(uname -m | sed -e 's/x86_64/amd64/')
+DFK_CLI_DEST=/usr/local/bin/deploykf
+sudo curl -fL "https://github.com/deploykf/cli/releases/download/v${DKF_CLI_VERSION}/deploykf-darwin-${DKF_CLI_ARCH}" -o "${DFK_CLI_DE
+ST}"
+
+git clone https://github.com/ospostme/kf.git
+cd kf
+curl -fL -o "sample-values-0.1.5.yaml"   "https://raw.githubusercontent.com/deployKF/deployKF/v0.1.5/sample-values.yaml"
+
+deploykf generate     --source-version "0.1.5"     --values ./sample-values-0.1.5.yaml     --values ./custom-overrides.yaml     --outp
+ut-dir ./GENERATOR_OUTPUT
+
+kubectl apply --filename GENERATOR_OUTPUT/app-of-apps.yaml
+
+
+```
 
 ## Harbor
 
-## kuik image keeper
+Harbor is an open source registry, help to consistently and securely manage
+artifacts across cloud native compute platforms like Kubernetes and Docker.
+
+> Install Harbor on a Kubernetes cluster with helm is more much easy. To serve
+> different targets, like docker desktop, k8s at anytime, choose standalone
+> deployment.
+
+### Harbor env
+
+- Install harbor on KVM host. Docker compose used to control the Harbor
+  containers. External storage and ssl configuration customized within config
+  template.
+- Get issued cert with acme.sh (Need domain).
+- Add hosts records to mapping domain to local address
+- create pull though cache for docker.io, quay.io, registry.k8s.io, ghcr.io,
+  then any new pull request will add corresponding image into harbor for later
+  usage.
+- Customized containerd certs.d, mapping docker/query/k8s/ghcr registry to
+  harbor local registry, then k8s pull request just as normal but served by proxy
+  though cache.
+- TDB create other kind of projects for those registries doesn't support pull
+  though cache.
+
+### containerd integration
+
+```text
+
+```
+
+## kuik kube-image-keeper
+
+kube-image-keeper is container image caching system for Kubernetes.
+
+When a pod is created, kuik's mutating webhook rewrites its images on the fly to
+point to the local caching registry, adding a localhost:{port}/ prefix (the port
+is 7439 by default, and is configurable). This means that you don't need to
+modify/rewrite the source registry url of your manifest/helm chart used to
+deploy your solution, kuik will take care of it.
+
+3 ways to tell kuik which pods it should manage
+
+- label kube-image-keeper.enix.io/image-caching-policy=ignore
+- Helm value controllers.webhook.ignoredNamespaces
+- Helm value controllers.webhook.objectSelector.matchExpressions (match all by
+  default)
+
+> Easy install and make it fly with k8s cluster.  
+> not suitable for k8s install
+> cache ignore control is complicated.
 
 ## k9s
 
-# High level summary of the steps to setup
+# High level summary of the steps to home lab env setup
 
-## Determine suitable vGPU driver
+- Determine suitable vGPU driver
 
-## KVM cluster setup with Vagrant
+- KVM cluster setup with Vagrant
 
-## k8s cluster install with kubespary
+- k8s cluster install with kubespary
 
-## Adjust contained configuration and verify
+- Adjust contained configuration and verify
 
-## nfs driver/vGPU driver
+- nfs driver/vGPU driver
 
-## charmed kubeflow/Mflow install with Juju
+- metallb address pool, enable load balancer
 
-## Jupiter Lab customize for dive into deep learning
+- charmed kubeflow/Mflow install with Juju
+
+- Jupiter Lab customize for dive into deep learning
