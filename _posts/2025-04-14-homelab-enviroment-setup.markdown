@@ -1781,6 +1781,7 @@ ut-dir ./GENERATOR_OUTPUT
 
 kubectl apply --filename GENERATOR_OUTPUT/app-of-apps.yaml
 
+create password reference ArgoCD docs
 
 ```
 
