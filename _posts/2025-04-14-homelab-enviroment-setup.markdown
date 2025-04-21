@@ -1,7 +1,6 @@
---
+---
 title: Home lab Environment Setup
-date: 2025-04-14 00:00:00 Z
-
+ date: 2025-04-14 00:00:00 Z
 ---
 
 # Hardware List
