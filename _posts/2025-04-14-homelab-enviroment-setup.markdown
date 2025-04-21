@@ -1,5 +1,5 @@
-k--
-title: Homelab Enviroment Setup
+--
+title: Home lab Environment Setup
 date: 2025-04-14 00:00:00 Z
 
 ---
@@ -10,7 +10,7 @@ date: 2025-04-14 00:00:00 Z
 | -------------------- | -------------------------- | ------ | -------- |
 | CPU                  | Intel(R) Xeon(R) Gold 6138 | 2      | 2.00 GHz |
 | NVMe SSD             | SAMSUNG                    | 4      | 256G     |
-| NVme SSD controller  | ?                          | 1      | NA       |
+| NVMe SSD controller  | ?                          | 1      | NA       |
 | SATA SSD             | Intel                      | 4      | 480G     |
 | SAS HDD              | TOSHIBA                    | 3      | 6T       |
 | MegaRAID SAS 9364-8i | ?                          | 1      | NA       |
