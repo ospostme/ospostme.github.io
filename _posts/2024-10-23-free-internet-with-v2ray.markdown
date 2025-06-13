@@ -699,6 +699,92 @@ The idea is routing dns requests with routing policy.
 
 ```
 
+> As the differences on macOS the records may not affect real final states,
+> it changed based on macOS multiple times. If expect to apply on Linux as well,
+> need change accordingly.
+
+The main idea is:
+
+- dnsmasq serve dns resolve on 127.0.0.1 53. If resolve reqeust hits cache, just
+  return the known ip. If dndmasq doens't know the domain before, it starts to
+  forward the resovle request based on configs.
+
+- If the domain name falls in apple china or google china, which is valid, just
+  forward to 114 name server `server=/a1.mzstatic.com/114.114.114.114`
+
+- If the domain name falls in accelerated china domain goes to `server=127.0.0.1#5533`
+  which served by dnscrypt. otherwise go to 127.0.0.1:25533
+
+TEST
+
+- dig www.baidu.com @127.0.0.1 -p 5533
+- dig www.google.com @127.0.0.1 -p 25533
+- dig something 127.0.0.1
+
+```txt
+ospost(stable) $ cat /Library/LaunchDaemons/homebrew.mxcl.dnscrypt-proxy-china.plist
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>KeepAlive</key>
+        <true/>
+        <key>Label</key>
+        <string>homebrew.mxcl.dnscrypt-proxy-china</string>
+        <key>LimitLoadToSessionType</key>
+        <array>
+                <string>Aqua</string>
+                <string>Background</string>
+                <string>LoginWindow</string>
+                <string>StandardIO</string>
+                <string>System</string>
+        </array>
+        <key>ProcessType</key>
+        <string>Background</string>
+        <key>ProgramArguments</key>
+        <array>
+                <string>/opt/homebrew/opt/dnscrypt-proxy/sbin/dnscrypt-proxy</string>
+                <string>-config</string>
+                <string>/opt/homebrew/etc/dnscrypt-proxy-china.toml</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+</dict>
+</plist>
+Fri Jun 13 14:40:42 CST 2025 ospost@M2.local:/opt/homebrew/etc/dnsmasq.d
+ospost(stable) $ cat /Library/LaunchDaemons/homebrew.mxcl.dnscrypt-proxy-foreign.plist
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>KeepAlive</key>
+        <true/>
+        <key>Label</key>
+        <string>homebrew.mxcl.dnscrypt-proxy-foreign</string>
+        <key>LimitLoadToSessionType</key>
+        <array>
+                <string>Aqua</string>
+                <string>Background</string>
+                <string>LoginWindow</string>
+                <string>StandardIO</string>
+                <string>System</string>
+        </array>
+        <key>ProcessType</key>
+        <string>Background</string>
+        <key>ProgramArguments</key>
+        <array>
+                <string>/opt/homebrew/opt/dnscrypt-proxy/sbin/dnscrypt-proxy</string>
+                <string>-config</string>
+                <string>/opt/homebrew/etc/dnscrypt-proxy-foreign.toml</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+</dict>
+</plist>
+
+```
+
 ```cmd
 brew install dnscrypt-proxy
 sudo brew services start dnscrypt-proxy
@@ -825,9 +911,18 @@ Mon Apr 21 19:48:41 CST 2025 ospost@M2.local:/opt/homebrew/etc/dnsmasq.d
 ospost(stable) $ cat /opt/homebrew/etc/dnsmasq.conf  | grep ^server
 server=127.0.0.1#25533
 
+sudo launchctl bootstrap system
+/Library/LaunchDaemons/homebrew.mxcl.dnscrypt-proxy-china.plist
+sudo launchctl bootstrap system
+/Library/LaunchDaemons/homebrew.mxcl.dnscrypt-proxy-foreign.plist
+
+
+
+
+
 ```
 
-v2ray dns chagne, use 127.0.0.1
+v2ray dns change, use 127.0.0.1
 
 ```
   "dns": {
