@@ -967,3 +967,88 @@ v2ray dns change, use 127.0.0.1
 
 
 ```
+
+## Floating DNS based on Network
+
+NAT loopback (also called hairpinning), where accessing your public domain from
+within your local/private network doesn't work as expected. If you router
+doesn't support nat loop, following may help. The target is no matter where
+you are, you can access your services seemingless.
+
+- add special config for dnsmasq, resolve your public dns to local private
+  address. So when you connectting that private network which the service
+  resides in, you still can vist service with the public domaon.
+
+- Add script to toggle the config. The easiest and accurate way is to toggle
+  based on gateway's MAC. If it matches your private network gateway, the fake
+  dns should affective, otherwise, it should be resovled correctly.
+
+- Figure out a way to pull the trigger automatically when network changes. And
+  restart dnsmasq service.
+
+```txt
+ospost(stable) $ cat ~/Library/LaunchAgents/com.local.dns-toggle.plist
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.local.dns-toggle</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/ospost/.toggle-dnsmasq-based-on-network.sh</string>
+    </array>
+
+    <key>WatchPaths</key>
+    <array>
+        <string>/Library/Preferences/SystemConfiguration</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
+Fri Jun 13 15:06:08 CST 2025 ospost@M2.local:/opt/homebrew/etc/dnsmasq.d
+
+
+ospost(stable) $ cat ~/.toggle-dnsmasq-based-on-network.sh
+#!/bin/bash
+# Your known gateway MAC address (find it at home with: arp -n $(route get default | awk '/gateway/ {print $2}'))
+MY_HOME_MAC="70:c6:dd:31:90:e9"
+
+# Paths
+LOCAL_OVERRIDE="/opt/homebrew/etc/dnsmasq.d/active-local.conf"
+CONFIG_SOURCE="/Users/ospost/usr/local/etc/dnsmasq.d/local-overrides.conf"
+
+# Get gateway IP
+GATEWAY_IP=$(route get default | awk '/gateway/ {print $2}')
+[[ -z "$GATEWAY_IP" ]] && echo "❌ No gateway found" && exit 1
+
+# Get MAC of gateway
+MAC=$(arp -n "$GATEWAY_IP" | awk '/at/ {print $4}')
+[[ -z "$MAC" ]] && echo "❌ Could not get MAC" && exit 1
+
+echo "Detected gateway MAC: $MAC"
+
+if [[ "$MAC" == "$MY_HOME_MAC" ]]; then
+    echo "✅ On home network — enabling local DNS for lab.whocares.icu"
+    ln -sf "$CONFIG_SOURCE" "$LOCAL_OVERRIDE"
+else
+    echo "🌐 Not home — removing override lab.whocares.icu"
+    rm -f "$LOCAL_OVERRIDE"
+fi
+
+# Restart dnsmasq as root
+sudo /opt/homebrew/bin/brew services restart dnsmasq
+
+
+
+
+Force macOS use 127.0.0.1 to resolve mydomain.com
+ospost $ cat /etc/resolver/mydomain.com
+nameserver 127.0.0.1
+
+
+```
