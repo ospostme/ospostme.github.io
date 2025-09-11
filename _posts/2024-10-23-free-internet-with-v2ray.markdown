@@ -95,7 +95,6 @@ Couple of things to reveal the magic
 ## GUI Client
 
 - qv2ray old but workable and easy to setup
-
   - [x] macOS
   - [x] Linux
   - [x] Windows (anti virus warning)
@@ -188,7 +187,7 @@ For public domain names:
 xx.yy.zz {
     # good practice to signal on behalf of who
     # are the certs getting issue
-    tls chenyanyu.ospost@@gmail.com
+    tls xxx@@gmail.com
 
     # logs are optional
     log {
@@ -211,6 +210,70 @@ xx.yy.zz {
 
     rewrite @disallowed '/index.php'
 }
+
+```
+
+If got stocked with domain HTTP-01 validation, use DNS-01 challenge
+with API key.
+
+> tls xx@gmail.com {
+> dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+> }
+
+- Need special version of caddy which support DNS-01 challenge
+  Caddy's Cloudflare DNS module (part of dns.providers.cloudflare) is necessary
+  for this functionality. If using a custom Caddy build or Docker image, ensure
+  this module is included. Pre-built Docker images like
+  caddybuilds/caddy-cloudflare often include it.
+
+- API Key with
+  - Zone / Zone / Read
+  - Zone / DNS / Edit
+
+When Caddy needs to obtain or renew a certificate via the DNS-01 challenge,
+it will: Use the configured Cloudflare DNS module.
+Authenticate with Cloudflare using the provided API token.
+Create a temporary TXT record in your Cloudflare DNS zone containing the ACME
+challenge token. Wait for the DNS record to propagate.
+Let's Encrypt (or your chosen ACME CA) will then query the DNS for this TXT
+record to verify domain ownership.
+Once verified, Caddy will remove the temporary TXT record.
+
+```
+
+
+xx.yy.zz:443 {
+    # good practice to signal on behalf of who
+    # are the certs getting issue
+    tls xx@gmail.com {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+
+    reverse_proxy /da144038-8d69-46b2-b9aa-ae964312f670 127.0.0.1:42316
+    import /etc/caddy/233boy/xx.conf.add
+
+    # logs are optional
+    log {
+	output file /var/log/caddy/xx
+	format console
+    }
+
+    root * /var/www/xx
+    encode gzip
+    file_server
+    php_fastcgi unix//run/php/php-fpm.sock
+
+    @disallowed {
+	path /xmlrpc.php
+	path *.sql
+	path /wp-content/uploads/*.php
+    }
+
+    rewrite @disallowed '/index.php'
+
+}
+
+
 ```
 
 ### V2ray
@@ -384,7 +447,7 @@ Install Starter Templates, create site with classical templates or AI builder
 
 Client configuration example
 
-```
+```json
 
 {
   "log": {
@@ -650,6 +713,399 @@ Client configuration example
     ]
   }
 }
+
+{
+  "log": {
+    "access": "/Users/ospost/LOGS/v2ray_access",
+    "error": "/Users/ospost/LOGS/v2ray_error",
+    "loglevel": "debug"
+  },
+  "inbounds": [
+    {
+      "tag": "SOCKS-INBOUND",
+      "port": 1080,
+      "listen": "127.0.0.1",
+      "protocol": "socks",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": ["http", "tls"]
+      },
+      "settings": {
+        "udp": true,
+        "auth": "noauth"
+      }
+    },
+    {
+      "tag": "HTTP-INBOUND",
+      "port": 8888,
+      "listen": "127.0.0.1",
+      "protocol": "http",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": ["http", "tls"]
+      },
+      "settings": {
+        "udp": true,
+        "auth": "noauth"
+      }
+    },
+    {
+      "tag": "API",
+      "port": 53284,
+      "listen": "127.0.0.1",
+      "protocol": "dokodemo-door",
+      "settings": {
+        "udp": false,
+        "address": "127.0.0.1",
+        "allowTransparent": false
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "HK2",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "YOUR SERVER ADDRESS",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "id": "ID",
+                "level": 0
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "YOUR SERVER ADDRESS"
+        },
+        "wsSettings": {
+          "path": "ID"
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    },
+    {
+      "tag": "HK",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "YOUR SERVER",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "id": "ID",
+                "level": 0
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "YOUR SERVER"
+        },
+        "wsSettings": {
+          "path": "/ID"
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    },
+    {
+      "tag": "VULTRFREE",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "id": "",
+                "level": 0
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": ""
+        },
+        "wsSettings": {
+          "path": ""
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    },
+    {
+      "tag": "RAKSMART",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "id": "",
+                "level": 0
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": ""
+        },
+        "wsSettings": {
+          "path": ""
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    },
+    {
+      "tag": "AWS",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "id": "",
+                "level": 0
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": ""
+        },
+        "wsSettings": {
+          "path": ""
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    },
+    {
+      "tag": "GOOGLE",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "id": "",
+                "level": 0
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": ""
+        },
+        "wsSettings": {
+          "path": ""
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    },
+    {
+      "tag": "DIRECT",
+      "protocol": "freedom",
+      "settings": {}
+      // it is a must if you want to use V2Ray's routing feature.
+      // here direct is a tag of this freedom outbound, then V2Ray will know
+this outbound stands for "direct".
+    },
+    {
+      "tag": "BLOCK",
+      "protocol": "blackhole",
+      "settings": {
+        "response": {
+          "type": "http"
+        }
+      }
+    }
+  ],
+  //"observatory": {
+  //  "subjectSelector": ["HK", "AWS", "GOOGLE"],
+  //  "selector": ["HK", "AWS", "GOOGLE", "VULTRFREE", "RAKSMART"],
+  //  "probeInterval": "5m"
+  //},
+  "stats": {},
+  "api": {
+    "tag": "API",
+    "services": ["StatsService"]
+  },
+  "dns": {
+    "servers": [
+      "127.0.0.1"
+      //{
+      //  "address": "223.5.5.5",
+      //  "port": 53,
+      //  "domains": ["geosite:cn", "ntp.org"]
+      //}
+    ]
+  },
+  "routing": {
+    "domainStrategy": "IPOnDemand",
+    "balancers": [
+      {
+        "tag": "BALANCER",
+        //"selector": ["HK", "AWS", "GOOGLE", "VULTRFREE", "RAKSMART"],
+        //"selector": ["VULTRFREE", "RAKSMART"],
+        "selector": ["HK2"],
+        //"selector": ["HK","VULTRFREE", "RAKSMART"],
+        //"selector": ["VULTRFREE"],
+        //"selector": ["RAKSMART"],
+        //"selector": ["AWS"],
+        //"selector": ["GOOGLE"],
+        "strategy": {
+          "type": "random"
+        }
+      }
+    ],
+    "rules": [
+      //{
+      //  "type": "field",
+      //  "ip": ["223.5.5.5", "114.114.114.114"],
+      //  "outboundTag": "DIRECT"
+      //},
+      //{
+      //  "type": "field",
+      //  "ip": ["8.8.8.8", "208.67.222.222"],
+      //  "balancerTag": "BALANCER"
+      //},
+      {
+        "type": "field",
+        "domain": ["geosite:speedtest"],
+        "balancerTag": "BALANCER"
+      },
+      {
+        "type": "field",
+        "outboundTag": "BLOCK",
+        "domain": ["geosite:category-ads-all"],
+        "enabled": true
+      },
+      {
+        "type": "field",
+        "outboundTag": "DIRECT",
+        "protocol": ["bittorrent"]
+      },
+      {
+        "type": "field",
+        "outboundTag": "DIRECT",
+        "domain": ["geosite:cn"],
+        "enabled": true
+      },
+      {
+        "type": "field",
+        "outboundTag": "DIRECT",
+        "ip": ["geoip:private", "geoip:cn"],
+        "enabled": true
+      },
+      {
+        "type": "field",
+        "domain": [
+          "geosite:openai",
+          "api.openai.com",
+          "chat.openai.com",
+          "openai.com"
+        ],
+        "outboundTag": "VULTRFREE" // Route OpenAI traffic to Server 1
+      },
+      {
+        "type": "field",
+        "domain": [
+          //"geosite:claude",
+          "claude.ai",
+          "chat.claude.ai",
+          "api.openai.com",
+          "anthropic.com",
+          "api.anthropic.com",
+          "auth.anthropic.com"
+        ],
+        "outboundTag": "VULTRFREE" // Route OpenAI traffic to Server 1
+      },
+
+      {
+        "type": "field",
+        "domain": [
+          "huggingface.co", // Main site (models, datasets, spaces, user
+profiles)
+          "api-inference.huggingface.co", // Inference API
+          "cdn-lfs.huggingface.co", // LFS CDN for large files (model weights)
+          "huggingfacehub.com", // Alternate domain (sometimes used in packages)
+          "hf.space", // Spaces (apps and demos)
+          "datasets-server.huggingface.co", // Datasets API
+          "models-server.huggingface.co", // Models API
+          "auth.huggingface.co", // Authentication
+          "s3.amazonaws.com", // Some model files (S3-hosted)
+          "static.huggingface.co" // Static assets (CSS, JS, etc.)
+        ],
+        "outboundTag": "VULTRFREE"
+      },
+
+      {
+        "type": "field",
+        "network": "tcp,udp",
+        "balancerTag": "BALANCER"
+      }
+    ]
+  }
+}
+
 
 ```
 
@@ -1033,10 +1489,10 @@ MAC=$(arp -n "$GATEWAY_IP" | awk '/at/ {print $4}')
 echo "Detected gateway MAC: $MAC"
 
 if [[ "$MAC" == "$MY_HOME_MAC" ]]; then
-    echo "✅ On home network — enabling local DNS for lab.whocares.icu"
+    echo "✅ On home network — enabling local DNS for lab.xxxx"
     ln -sf "$CONFIG_SOURCE" "$LOCAL_OVERRIDE"
 else
-    echo "🌐 Not home — removing override lab.whocares.icu"
+    echo "🌐 Not home — removing override lab.xxx"
     rm -f "$LOCAL_OVERRIDE"
 fi
 
